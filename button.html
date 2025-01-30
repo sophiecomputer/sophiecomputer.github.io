@@ -1,0 +1,135 @@
+<!DOCTYPE html> 
+<html>
+<head> 
+<meta charset="utf-8"> 
+<body>
+
+    <a href="https://sophie.computer" target="_blank">
+      <canvas 
+        id="image8831" 
+        style="position: absolute; margin: -8px -8px;">
+      </canvas>  
+    </a> 
+
+    <div style="display: none;">
+        <img id="buttonback8831" src="button-back.png" 
+            width="88px" height="31px" />
+        <img id="buttonfront8831" src="button-front.png"
+            width="88px" height="31px" />
+    </div>
+    
+    <br><br><br>
+    <code>
+      &ltiframe src="https://sophie.computer/button.html" 
+      width="88px" height="31px" style="border:none" scrolling="no"&gt&lt/iframe&gt
+    </code>
+
+<script>
+
+    function randEmoji() {
+      // Emoji are defined in four groups: 
+      //   food:        1F32D-1F37F
+      //   animals:     1F400-1F4D3 
+      //   emoticons:   1F600-1F64F
+      //   expressions: 1F910-1F92F
+      // Pretend as if these four ranges are in a single list and select one emoji from that list. 
+      let range1 = 0x1f37f - 0x1f32d, 
+          range2 = 0x1f4de - 0x1f400 + range1,
+          range3 = 0x1f64f - 0x1f600 + range2, 
+          range4 = 0x1f92f - 0x1f910 + range3; 
+      let rand = Math.floor(Math.random() * range4);
+      let num = 0; 
+      if (rand < range1)      num = 0x1f32d + rand; 
+      else if (rand < range2) num = 0x1f400 + rand - range1; 
+      else if (rand < range3) num = 0x1f600 + rand - range2; 
+      else                    num = 0x1f910 + rand - range3;
+      return String.fromCodePoint(num); 
+    }
+    
+    let ipaddress = ""; 
+    let ipaddressText = ""; // Includes emoji. 
+    let lastTime = Date.now();
+    let lastPhase = -1; 
+    let pos = 0; 
+
+    let canvas = document.getElementById("image8831"); 
+    canvas.width = 88; 
+    canvas.height = 31;
+
+    const ctx = canvas.getContext("2d");
+    const buttonBack = document.getElementById("buttonback8831");
+    const buttonFront = document.getElementById("buttonfront8831"); 
+
+    function drawImage() {
+        let time = Date.now(); 
+        let delta = time - lastTime;
+
+        // Clear background. 
+        ctx.drawImage(buttonBack, 0, 0); 
+        ctx.textAlign = "center"; 
+        ctx.textBaseline = "middle"; 
+
+        // Three phases. 
+        let phaseSeconds = time / 1000 % 6;
+        if (phaseSeconds < 2)      var phase = 0; 
+        else if (phaseSeconds < 4) var phase = 1; 
+        else                       var phase = 2; 
+
+        switch (phase) {
+          // Flash "SOPHIE" for two seconds. (0s - 2s)
+          case 0: 
+            ctx.fillStyle = phaseSeconds % 0.25 < 0.125 ? "black" : "red"; 
+            ctx.font = "14px Courier New"; 
+            ctx.fillText("SOPHIE", 44, 15); 
+            break; 
+        
+          // Flash "COMPUTER" for two seconds. (2s - 4s) 
+          case 1: 
+            ctx.fillStyle = phaseSeconds % 0.25 < 0.125 ? "black" : "blue"; 
+            ctx.font = "14px Courier New"; 
+            ctx.fillText("COMPUTER", 44, 15); 
+            break; 
+
+          // Move IP from left to right for two seconds. (4s - 6s). 
+          case 2: 
+            ctx.fillStyle = "black"; 
+            ctx.font = "14px Courier New"; 
+            
+            // Only choose an emoji the first time we enter this phase. 
+            if (lastPhase != 2) {
+              ipaddressText = 
+                randEmoji() + randEmoji() + randEmoji() + 
+                "  " + ipaddress + "  " + 
+                randEmoji() + randEmoji() + randEmoji();
+            }
+            
+            // Some of these constants are just for looks; they don't have any
+            // real meaning besides just empirically looking good.
+            const width = ctx.measureText(ipaddressText).width * 1.25      
+            const pos = width - width * (phaseSeconds - 4) + 44; 
+            ctx.fillText(ipaddressText, pos, 15); 
+            break; 
+        } 
+        
+        // Draw the border (the very edge). 
+        ctx.drawImage(buttonFront, 0, 0); 
+        
+        // Update info for next function call. 
+        lastPhase = phase; 
+        lastTime = time; 
+    }
+
+    function start(data) {
+        ipaddress = data; 
+        setInterval(drawImage, 100); 
+    }
+
+    // TODO: what if service unavailable? 
+    fetch("https://checkip.amazonaws.com/")
+        .then(res => res.text())
+        .then(data => start(data));
+     
+</script>
+
+</body>
+</html>

@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0">
+<channel>
+  
+  <title>THE SOPHIE BLOG</title>
+  <description>The one and only RSS feed for Sophie Computer.</description>
+  <link>https://sophie.computer</link>
+  <lastBuildDate>Thu, 03 Aug 2023 21:59:00 GMT</lastBuildDate>
+  <ttl>10080</ttl>
+  
+  <item> 
+    <title>0000 [2023-04-02]: Hello, World!</title> 
+    <description> 
+      This is my first blog post! The website is UP and RUNNING!
+    </description> 
+    <link>https://sophie.computer/posts/0000.html</link>
+    <guid>https://sophie.computer/posts/0000.html</guid> 
+    <pubDate>Sun, 02 Apr 2023 23:30:00 GMT</pubDate>
+  </item>
+  
+  <item> 
+    <title>0001 [2023-04-15]: Polyhedral Compilation and The Owl House</title> 
+    <description> 
+      Describes my invitation to a conference, a description of the super 
+      interesting "Polyhedral" approach to optimizing some types of programs, 
+      and a big review of The Owl House finale. 
+    </description> 
+    <link>https://sophie.computer/posts/0001.html</link>
+    <guid>https://sophie.computer/posts/0001.html</guid> 
+    <pubDate>Sat, 15 Apr 2023 23:47:00 GMT</pubDate>
+  </item>
+  
+  <item> 
+    <title>0002 [2023-08-03]: Gender and the Bookzone</title> 
+    <description> 
+      Summarizes what I've been up to since the last post, including some 
+      projects I worked on, a gender update, and a bunch of books I've read. 
+    </description> 
+    <link>https://sophie.computer/posts/0002.html</link>
+    <guid>https://sophie.computer/posts/0002.html</guid> 
+    <pubDate>Thu, 03 Aug 2023 21:59:00 GMT</pubDate>
+  </item>
+  
+  <item> 
+    <title>0003 [2023-08-16]: Staying Anonymous</title> 
+    <description> 
+      Talks about an apartment move I made, along with my thoughts on the 
+      difficulty of staying anonymous on the internet and how image 
+      fingerprinting makes everything harder.
+    </description> 
+    <link>https://sophie.computer/posts/0003.html</link>
+    <guid>https://sophie.computer/posts/0003.html</guid> 
+    <pubDate>Wed, 16 Aug 2023 16:17:00 GMT</pubDate>
+  </item>
+  
+  <item> 
+    <title>0004 [2023-12-27]: Euclid's Theorem</title> 
+    <description> 
+      Describes Euclid's Theorem, a short theorem which proves why there are
+      an infinite amount of prime numbers.
+    </description> 
+    <link>https://sophie.computer/posts/0004.html</link>
+    <guid>https://sophie.computer/posts/0004.html</guid> 
+    <pubDate>Wed, 27 Dec 2023 08:37:00 GMT</pubDate>
+  </item>
+  
+  <item> 
+    <title>0005 [2024-1-1]: 2023's Sophie in Review</title> 
+    <description> 
+      Summarizes the events of Sophie over the past twelve months.
+    </description> 
+    <link>https://sophie.computer/posts/0005.html</link>
+    <guid>https://sophie.computer/posts/0005.html</guid> 
+    <pubDate>Tue, 2 Jan 2024 04:46:00 GMT</pubDate>
+  </item>
+  
+  <item> 
+    <title>0006 [2024-1-8]: What Am I Supposed to DO</title> 
+    <description> 
+      I write through a little emotional thought-process i was spiraling
+      through, and a nice resolution i came to later on.
+    </description> 
+    <link>https://sophie.computer/posts/0006.html</link>
+    <guid>https://sophie.computer/posts/0006.html</guid> 
+    <pubDate>Mon, 8 Jan 2024 06:26:00 GMT</pubDate>
+  </item>
+  
+  <item> 
+    <title>0007 [2024-1-9]: I LOVE CONSUMING THINGS</title> 
+    <description> 
+      I decided to stop using social media on the weekdays, and only use 
+      social media through a reduced format, in order to stop myself 
+      from using it way too much like i have been already.
+    </description> 
+    <link>https://sophie.computer/posts/0007.html</link>
+    <guid>https://sophie.computer/posts/0007.html</guid> 
+    <pubDate>Mon, 9 Jan 2024 19:23:00 GMT</pubDate>
+  </item>
+  
+  <item> 
+    <title>0008 [2024-1-28]: The Sophie Gene</title> 
+    <description> 
+      A little pep talk for sophie, and some stuff about books i've 
+      read (demon copperhead; atomic habits).
+    </description> 
+    <link>https://sophie.computer/posts/0008.html</link>
+    <guid>https://sophie.computer/posts/0008.html</guid> 
+    <pubDate>Mon, 29 Jan 2024 2:24:00 GMT</pubDate>
+  </item>
+
+  <item> 
+    <title>0009 [2024-2-18]: My Sophie Experience with Sophiness</title> 
+    <description> 
+      Free will isn't real and everything is deterministic and that 
+      sucks. I talk about balls on hills. I also mention reading My
+      Lesbian Experience with Loneliness. 
+    </description> 
+    <link>https://sophie.computer/posts/0009.html</link>
+    <guid>https://sophie.computer/posts/0009.html</guid> 
+    <pubDate>Sun, 18 Feb 2024 19:39:00 GMT</pubDate>
+  </item>
+  
+  <item> 
+    <title>0010 [2024-3-2]: My Many Meows</title> 
+    <description> 
+      I complain about identity and work. Nothin much but that!
+    </description> 
+    <link>https://sophie.computer/posts/0010.html</link>
+    <guid>https://sophie.computer/posts/0010.html</guid> 
+    <pubDate>Sat, 2 Mar 2024 18:48:00 GMT</pubDate>
+  </item>
+  
+  <item> 
+    <title>0011 [2024-5-10]: ABCDEFGHIJKLMNOPQRSTUVWXYZ</title> 
+    <description> 
+      I forgot I wrote this and only noticed two months later. I'm posting 
+      it any ways since I never delete anything I spend time on. 
+    </description> 
+    <link>https://sophie.computer/posts/0011.html</link>
+    <guid>https://sophie.computer/posts/0011.html</guid> 
+    <pubDate>Sun, 10 Mar 2024 20:00:00 GMT</pubDate>
+  </item>
+  
+  <item> 
+    <title>0012 [2024-5-14]: I Think Diana Cavendish Should Kill Atsuko Kagari</title> 
+    <description> 
+      I summarize the end of the semester and I talk about how I've Got to 
+      get more Serious.
+    </description> 
+    <link>https://sophie.computer/posts/0012.html</link>
+    <guid>https://sophie.computer/posts/0012.html</guid> 
+    <pubDate>Tue, 14 May 2024 23:41:00 GMT</pubDate>
+  </item>
+  
+  <item> 
+    <title>0013 [2024-8-29]: On The Nature of Desire; also stuff about girls' last tour</title> 
+    <description> 
+      i talk about girls' last tour and how i probably shouldnt have read it in my current mental state.
+    </description> 
+    <link>https://sophie.computer/posts/0013.html</link>
+    <guid>https://sophie.computer/posts/0013.html</guid> 
+    <pubDate>Tue, 29 Aug 2024 20:58:00 GMT</pubDate>
+  </item>
+  
+</channel>
+</rss>

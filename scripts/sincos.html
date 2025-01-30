@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<style>
+canvas {
+    border:2px solid black;
+    background-color: #87ceeb;
+}
+</style>
+</head>
+<body onload="startGame()">
+<script>
+
+var canvasWidth = 600;
+var canvasHeight = 400;
+
+var equationLabel;
+var equationMinX = -10;
+var equationMaxX = 10;
+var equationMinY = -10;
+var equationMaxY = 10;
+var equationXInterval = (equationMaxX - equationMinX) / canvasWidth; // 0.05;
+
+let cosCoefficient = 1; 
+let sinCoefficient = 1;
+
+var gameCanvas = {
+    canvas: document.createElement("canvas"),
+    start: function() {
+        this.canvas.width = canvasWidth;
+        this.canvas.height = canvasHeight;
+        this.context = this.canvas.getContext("2d");
+        document.body.insertBefore(this.canvas, document.body.childNodes[0]);
+    }
+}
+
+function startGame() {
+    gameCanvas.start();
+    setInterval(updateCanvas, 20);
+    setText(); 
+}
+
+function func(x) {
+    return Math.sin(sinCoefficient * x + Date.now() / 1000) * 
+        Math.cos(cosCoefficient * x + Date.now() / 1000); 
+}
+
+function setText() {
+    equationHeader.innerText = "sin(" + sinCoefficient + "x + t) * " +
+        "cos(" + cosCoefficient + "x + t)"; 
+}
+
+function updateCanvas() {
+    ctx = gameCanvas.context;
+    ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+   
+    /*
+    ctx.font = "25px Marker Felt"; 
+    ctx.fillStyle = "black"; 
+    ctx.fillText(
+        "cos(" + cosCoefficient + "x + t / 1000) * " + 
+        "sin(" + sinCoefficient + "x + t / 1000)", 
+        100, 30);
+    */
+
+    var yMinVal = Number.MAX_SAFE_INTEGER;
+    var yMaxVal = Number.MIN_SAFE_INTEGER;
+    for (let x = equationMinX; x <= equationMaxX; x += equationXInterval) {
+        let y = func(x); 
+        if (y < yMinVal) yMinVal = y; 
+        if (y > yMaxVal) yMaxVal = y;
+    }
+
+    let prevX = 0; 
+    let prevY = 0; 
+    for (let x = equationMinX; x <= equationMaxX; x += equationXInterval) {
+        let y = func(x); 
+        let percentX = (x - equationMinX) / (equationMaxX - equationMinX); 
+        let percentY = (y - yMinVal) / (yMaxVal - yMinVal); 
+        let drawX = percentX * canvasWidth; 
+        let drawY = canvasHeight - percentY * canvasHeight;
+        
+        if (x != equationMinX) {
+            ctx.beginPath(); 
+            ctx.moveTo(prevX, prevY);
+            ctx.lineTo(drawX, drawY);
+            ctx.stroke(); 
+        }
+        prevX = drawX;
+        prevY = drawY;
+    }
+}
+
+document.body.onkeydown = function(e) {
+    if (e.keyCode == 38) cosCoefficient++;
+    else if (e.keyCode == 40) cosCoefficient--; 
+    else if (e.keyCode == 37) sinCoefficient--; 
+    else if (e.keyCode == 39) sinCoefficient++; 
+    setText();     
+}
+
+</script>
+<br>
+<h1 id="equationHeader">Equation</h1>
+<h3>Use the arrow keys to change the sin/cos coefficients.</h3>
+</body>
+</html>

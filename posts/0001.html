@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>0001 [2023-04-15]: Polyhedral Compilation and The Owl House</title>
+    <link href="../style.css" rel="stylesheet" type="text/css" media="all">
+    
+    <style> 
+      *, ::after, ::before {
+          box-sizing: border-box;
+      }
+      
+      ol {
+          counter-reset: list;
+      }
+      
+      ol > li {
+          list-style: none;
+          position: relative;
+      }
+      
+      ol > li:before {
+          content: "[" counter(list) "]";
+          counter-increment: list;
+          left: -40px;
+          padding-right: 10px;
+          position: absolute;
+          text-align: right;
+          width: 40px;
+      }
+      
+      body {
+        background-image: url('resources/0001/owl-house-background.jpg'); 
+      }
+      
+      p {
+        text-align: justify;
+      }
+      
+      section {
+        padding: 15px 25px 15px
+      }
+      
+      @media only screen and (max-width: 1000px) {
+       body {
+          padding-left: 0%;
+          padding-right: 0%;
+       }
+      }
+      
+      @media only screen and (min-width: 1001px) {
+       body {
+          padding-left: 25%;
+          padding-right: 25%;
+       }
+      }
+    </style> 
+  
+  </head>
+  <body>
+    
+    <h1>Polyhedral Compilation and The Owl House</h1>
+    <h5>April 15, 2023 | 7:55 PM ET</h5>
+
+    <section> 
+      
+      <p>
+        Hello again! This is my second post on this blog. The past two weeks 
+        have been very eventful! This post will include research updates and a 
+        big review of The Owl House finale! Read on if you’re interested, and see the 
+        Conclusion for contact info.
+      </p>
+      
+      <h2><center>Research</center></h2> 
+      
+      <h3>Conference</h3>
+      
+      <p>
+        I recently started working on a new research project. As you may know, 
+        I’m currently a Masters student in the United States, and I eventually 
+        want to receive a PhD in compilers. My research advisor is very nice, 
+        and they want to help me reach this goal. They’ve said I should try and 
+        get into a better school than I’m currently going to, though, so we want 
+        to release an extra special paper that gets me accepted into an awesome 
+        PhD program. I’m not all that certain on the timeline for this paper and 
+        how long it’ll take to do, but it should take somewhere between 6 months 
+        to a year to finish. Research takes a long time, not to mention the 
+        review process and the act of sending out the papers to conferences for 
+        them to read! 
+      </p>
+      
+      <p>
+        I’ve worked on one paper that was accepted before. It was accepted very 
+        recently, and I was a coauthor on it. The parts I worked on were very 
+        selective (I think I really just contributed  on making a single 
+        benchmark use a new programming feature, when the paper consisted of 
+        maybe 8 benchmarks), so it was very nice of the other authors to still 
+        put my name on the paper as a coauthor. Although, since the paper was 
+        accepted, we were invited to go to the conference. The conference date 
+        was a little over a month away from the time we found we were accepted, 
+        but it was across the country!
+      </p>
+      
+      <p> 
+        If you know me, you’d know I’m a very shy person. I’m not very good at 
+        talking to people, and a lot of times I’ll delay in responding to people 
+        out of shyness. This doesn’t mean I don’t want to talk, and I’m trying 
+        to get better at it (don’t get discouraged from sending me messages!), 
+        but the conference made me very worried. Personally, I would much rather 
+        do the exact same thing every day, and my current workday is great 
+        because I go to the lab at 9am and leave at 9pm, with very little room 
+        left in the day to do anything but sleep. That’s the kind of schedule I 
+        love because of how consistent it is! Unfortunately, a conference with 
+        lots of “networking” and “conversing” and “engaging with people” is very 
+        out of my comfort zone. Also, that piled up with needing to learn how to 
+        stay in a hotel alone, or fly on a plane alone, or use rideshare apps, 
+        and a million other things was just too much for me, so I decided to 
+        stay back at the lab for this first conference.
+      </p> 
+      
+      <p>
+        A new thing I learned with this experience was how social PhDs needed to 
+        be. I always imagined it as a “work very hard doing research and let the 
+        business people handle the social parts,” but it requires attending a 
+        lot of conferences and networking with people and building connections 
+        with different institutions. That doesn’t discourage me from getting a 
+        PhD though, it just means I’ll have to work on my social skills a lot 
+        more if I want to succeed. I may not have gone to this conference, but 
+        I’m slowly hyping myself up to be able to go to the next one!
+      </p>
+      
+      <h3>Polyhedral Compilation</h3> 
+      
+      <p>
+        Besides that scary experience, my new research project requires learning 
+        a lot of different things about compilers. I don’t want to give away too 
+        many details over what I’m researching, so I’ll just say its over a 
+        specific aspect of GPU compilers. One thing I wanted to look into was 
+        specifically polyhedral compilation, a very interesting concept I heard 
+        about online and wanted to learn more about anyways. You can learn more 
+        about the topic through <a target="_blank" rel="noopener noreferrer" 
+        href="https://polyhedral.info/">this link</a>.
+      </p>
+      
+      <p>
+        Basically, polyhedral compilation is a way to remove dependencies in 
+        nested loops. Imagine you have a two-dimensional for-loop, in which the 
+        inner-loop depends on values obtained from previous iterations of the 
+        outer-loop. Normally, this would be very poor for performance since the 
+        inner loop in this example cannot be parallelized. There’s a strong 
+        dependency connecting loop iterations, so they must be completed in a 
+        specific order. Polyhedral compilation essentially converts this simple 
+        program snippet into a mathematical model (e.g., vectors, matrices, 
+        equations, and linear relationships, all containing only <i>numbers</i> 
+        instead of <i>code</i>), and then <i>solves</i> these models using some 
+        algorithm. 
+      </p>
+      
+      <p>
+        It’s a very interesting way of viewing code; program instructions seem 
+        like such a “physical” thing, corresponding to commands sent to hardware 
+        to control the actions of registers, caches, and other very real objects 
+        within a computer, that it’s mind-blowing how a mathematical model could 
+        reorganize it to run better. Anything defined in terms of math must be 
+        provably true by default, as math by definition is one of the only things 
+        in the world which contains undeniably true statements. You don’t get 
+        that in many other academic domains like physics or humanities, where 
+        statements are merely approximations of real-world events so 
+        inconceivably complex they cannot be predicted exactly in every scenario 
+        (for example, the force exerted by an object sliding against another due 
+        to friction can be approximated by an equation, but the equation only 
+        takes into consideration concepts on a macro-scale, even though the 
+        individual atoms that make up each object are the largest contributing 
+        factor in the determination of force). Due to everything in math 
+        stemming from “known” axioms, we can establish that some statement is 
+        true if it can be reduced into either axioms or other 
+        already-established true statements. The fact that a program can be 
+        visualized the same way is incredible! 
+      </p>
+      
+      <p>
+        I’ve read three papers over polyhedral compilation, listed at the end of 
+        this section. [1] and [2] are cited in many different papers due to 
+        introducing some very important ideas, and [3] further improves the 
+        process with some neat tricks. To summarize the main process behind 
+        polyhedral compilation, you (1) identify Static Control Parts within a 
+        program, which are sequences of statements containing only for-loops and 
+        if-conditions; (2) define an iteration vector that describes the range 
+        of the loop and a polyhedron—a special set of integer—for each statement 
+        and array reference; (3) create a schedule from the iteration vectors 
+        and polyhedra, containing the times at which each statement instance is 
+        executed; (4) produce a dependence polyhedra and set of equations from 
+        it representing all constraints the schedule needs to maintain; (5) 
+        solve the set of equations for those constraints to give a 
+        transformation matrix, bounding specific constraints when applicable to 
+        avoid infinite solutions; and finally (6) plug the transformation 
+        matrix, schedules, and polyhedra into a special polyhedral code 
+        generator to give completely restructured—but semantically correct—code. 
+        That last part isn’t explained in-depth in the papers I’ve read, so I’m 
+        reading up on that process next.
+      </p>
+      
+      <p>
+        Below is a nice little figure from [3] that gives a visual overview of 
+        the process. Each polyhedral code generator essentially generates the 
+        transformation matrix their own way with some algorithm, but they share 
+        lots of consistencies in the way they create and define polyhedra, 
+        schedules, and dependencies. You may notice that the transformation 
+        schedule in that figure is very simple-looking, to the extent it could 
+        be brute-forced generated by a very simple compiler, but these 
+        transformations are not guaranteed to always be semantically correct 
+        (e.g., produce a program which will always give the “correct” results), 
+        and the number of possible transformation matrices exponentially 
+        explodes in size as the program size increases. 
+      </p>
+      
+      <img src="resources/0001/polyhedral-compilation-figure.png" alt="Visual 
+      description of previously-described topic" style="width: 50%;
+      height: auto; max-width: 600px;" class="center">
+
+      <p>
+        I’m not really a big math person so a lot of this stuff went way over my 
+        head, but it was very interesting to see it from a layman’s perspective. 
+        I’m a big fan of linear algebra, calculus, and other subjects from a 
+        conceptual standpoint, and I’m great at visualizing representations of 
+        these concepts, but math papers tend to get super abstract with the 
+        stuff they try and solve. For example, a <a target="_blank"
+        rel="noopener noreferrer" 
+        href="https://en.wikipedia.org/wiki/Turing_machine">turing machine</a> 
+        can either be formally defined as a weird 7-valued tuple, with each 
+        value being either a vector, set, or function, and the relationships 
+        between these variables being explicitly defined using only set theory, 
+        <i>or</i> you could imagine a turing machine graphically as a 
+        “controller” sliding across a “memory tape”, changing values to other 
+        values depending on a list of instructions within the controller. Both 
+        representations mean the same thing, but the math version is provably 
+        correct while the other version is (in my opinion) easier to visualize. 
+      </p>
+      
+      <ol>
+        <li>
+          L. Pouchet, C. Bastoul, A. Cohen, and N. Vasilache, “Iterative 
+          optimization in the polyhedral model: part 1, one-dimensional time,” 
+          in <i>International Symposium on Code Generation and Optimization 
+          (CGO)</i>, March 2007, pp. 144-156.
+        </li> 
+        
+        <li>
+          L. Pouchet, C. Bastoul, A. Cohen, and J. Cavazos, “Iterative 
+          optimization in the polyhedral model: part II, multidimensional time,” 
+          in <i>ACM SIGPLAN Notices</i>, vol. 43, no. 6, June 2008, pp. 90-100.
+        </li>
+
+        <li>
+          S. Parsa and M. Hamzei, “Locality-conscious nested loops 
+          parallelization,” in <i>Electronics and Telecommunications Research 
+          Institute (ETRI) Journal</i>, vol. 36, no. 1, February 2014, pp. 
+          124-133. 
+        </li>
+      </ol>
+      
+      <h2><center>The Owl House</center></h2> 
+      
+      <p>
+        Alright, enough with the nerd stuff! This section talks about a few of 
+        my thoughts on The Owl House, which aired its finale last Saturday on 
+        4/8/23. <b>This section contains spoilers for The Owl House. If you want 
+        to avoid spoilers, skip this section!</b>
+      </p>
+      
+      <p>
+        To start, I want to say that The Owl House is my favorite show ever 
+        created. It’s also the only show I’ve felt the need to rewatch from 
+        start to end. I’ve seen the entire thing 6 times now, and every time I 
+        see it I’m glued to the screen. Everything about the show is wonderful 
+        to me, and its been a <i>huge</i> influence on my personality, identity, 
+        confidence, gender, and more. 
+      </p>
+      
+      <p>
+        Initially, I was very worried in the days leading up to the finale. I 
+        rewatched the entire show in the two weeks leading up to the date, and I 
+        remember crying to myself one night at the thought of the characters 
+        being separated from each other or important characters dying in the 
+        ending, since a lot of the promotional material for the show said things 
+        like “good things don’t last forever” and the showrunner Dana Terrace 
+        often talked about liking bad endings more than good ones. I tend to get 
+        very invested (obsessive?) over fiction, and I’ve realized I tend to 
+        treat these characters as real people and the conflict of the story as 
+        real events influencing the lives and futures of these characters. 
+      </p>
+      
+      <p>
+        The idea of Luz needing to stay in the human realm while all her friends 
+        went back home to the demon realm made me feel very sad; nevermind the 
+        fact that the show made it explicitly clear throughout the entirety of 
+        the story that it would be completely against the theme to have the 
+        characters split up at the end (they say the line “us weirdos have to 
+        stick together” maybe five separate times throughout its 43 episode 
+        run). The show expresses that Luz did not have a community in the human 
+        realm, so she built her own community of like-minded people. Initially, 
+        it seemed wrong of Luz to go off on this “escapist fantasy adventure” in 
+        a different world, abandoning her responsibilities to her mother by 
+        leaving, but season 3 showed how much Luz longed for a place to be 
+        understood around people who she felt she could relate to. 
+      </p>
+      
+      <p>
+        Anyways, the finale itself was absolutely wonderful. I’m a huge sucker 
+        for endings that go “and here’s what the characters look like 3 years 
+        from now, what they’re doing with their lives and the kind of new 
+        adventures they’re going on, and by the way they’re all still friends 
+        and visit each other daily and they’re all happy and healthy and very 
+        successful and consider each other as family.” As mentioned before, I 
+        like to imagine these worlds as real things happening to real people, 
+        and seeing that everything works out for everybody (e.g., its not just 
+        an abstract theme the authors are trying to convey, but a glimpse into 
+        the lives of fully-realized individuals) makes me feel very happy. 
+      </p>
+      
+      <p>
+        I originally watched a livestream of the finale, but halfway through the 
+        stream buffered and I didn’t want to miss anything so I decided to stop 
+        and come back later when a recorded version was uploaded. It felt very 
+        strange waiting those 90 minutes between watches, where I watched up 
+        until the pivotal climax of the story and then took a break to wonder 
+        about my own thoughts, but my viewing experience was not damaged in the 
+        end. I grew a much stronger disdain for streaming, and don’t think I’ll 
+        ever stream again for anything important anymore, but I rewatched the 
+        finale in its entirety after that break and got through it alright.
+      </p>
+      
+      <p>
+        I cried an embarrassingly large amount during the finale. That Saturday 
+        I spent pretty much the entire day watching season 2. I had a plan in 
+        mind to see several episodes a day for two weeks, but my schedule didn’t 
+        really align at times so I had to sort of crunch to make the finale in 
+        time, but the ending really was perfect in every way. It connected all 
+        the themes I wanted it to, tied up every loose end I wanted tied up, 
+        leaved some mystery and confusion in places I wanted to remain 
+        mysterious, and made references to past events in the best possible 
+        ways. Going into season 3, I was originally very upset that the show 
+        didn’t get a “proper ending” and that aspects of the show would be very 
+        rushed, but after watching the finale I realized how perfect the 
+        creators were in crafting the story. Nothing felt rushed in the 
+        slightest; of course I would’ve been thrilled to have an extra 20 
+        episodes of content, but nothing about the ending was short of 
+        exceptional.
+      </p>
+      
+      <p>
+        The content of the finale was breathtaking. The Titan was finally shown 
+        as a character, as someone whose been influencing the main characters’ 
+        journey from the very beginning. Luz and the Titan’s brief conversation 
+        about Belos’s being “evil” and how that was different from what they 
+        were doing was especially impactful for me. Of course, Belos wanted to 
+        do a genocide against all the witches in the Boiling Isles, but out of 
+        all the people to want to do this, a colonizer from the 1600s who lived 
+        through actual witch trials would be the most likely person to think it 
+        as rational. Why was Belos, a person who believed his actions were pure 
+        and morally correct, different than Luz, a person who also believed her 
+        actions were pure and morally correct? How could you justifiably define 
+        one as “evil” despite them both fighting for the same core ideals? It 
+        mirrors the current political landscape very closely, and gives a very 
+        good lesson to viewers who want to explain how a bigot can justifiably 
+        be “evil”, as it revolves around <i>intent</i> like the Titan said. The 
+        next paragraph gives some of my ideas on the topic of bigotry through 
+        transphobia, before returning to more Owl House talk. 
+      </p>
+      
+      <p>
+        What reason does a transphobe have to be transphobic? Admittedly, a 
+        significant amount of regular transphobes must believe what they think 
+        is morally correct; if they don’t, then they must be a sadist, deriving 
+        pleasure from inflicting pain on other people without regard for morals. 
+        Whether or not you believe sadism makes you unconditionally <i>evil</i> 
+        is out of scope, so I’ll focus on the first camp of people. Transphobes 
+        at least have some personal belief that what they’re doing is correct, 
+        since if they didn’t they would make steps to change their ideals. Some 
+        people may not be transphobic but still take actions that are 
+        transphobic in some cases, like a parent who doesn’t want their child to 
+        be transgender due to the potential increase in hardship they may 
+        experience as a result due to the bigotry of other people (of course 
+        this example makes <i>a lot of assumptions</i> on the ignorance and 
+        emotional intelligence of the parents, as dysphoria and other factors 
+        could still lead a closeted trans child to feel more unhappy than they 
+        would if they transitioned and experienced discrimination in their 
+        lives, but the point is that parents who feel no personal transphobia 
+        towards other people would still take transphobic actions in some cases 
+        for reasons they <i>personally</i> feel are justifiable). Furthermore, 
+        many transphobes do not have good reasons for being transphobic (like 
+        the idea that “if we normalize transphobia then that’ll be the death of 
+        our culture”... what exactly does that mean, and how will it affect 
+        me?), but these people may maintain their ideas out of conscious 
+        ignorance or being misled by other people. After all, many, <i>many</i> 
+        arguments bigots make can be <i>proven incorrect</i>, but that requires 
+        people who are willing to listen and learn. Are those people who choose 
+        not to listen evil? What if they’ve dedicated their lives to their 
+        bigoted views; bringing this back to The Owl House, the main villain 
+        killed his brother over his bigotry. Further down the line, if his 
+        belief in his views were challenged, he would have a very tough time 
+        changing his mind because it would mean he killed his brother for 
+        nothing. Nevermind the <i>good</i> a lifelong bigot could bring about by 
+        changing their mind! A transphobe who dedicated their life to hurting 
+        other people may think they <i>can’t</i> change their mind or else it 
+        would mean they hurt those people for no good reason! It is very 
+        difficult for any person to confront that idea, but the show ultimately 
+        argues that an “evil” person deliberately chooses to ignore strong 
+        arguments that debunk their views. Some of the other denizens of the 
+        Boiling Isles who were misled by Belos are not evil because they were 
+        willing to change their mind when presented strong evidence against 
+        their ideas. This is a very powerful message I think has influenced my 
+        own perception on the political landscape: your racist, transphobic 
+        grandparents have had <i>plenty</i> of opportunities to do a simple 
+        google search on the stories of real people affected by their bigotry. 
+        They choose to ignore the evidence that suggests they are wrong, and 
+        maintain the idea that the existing sources they consume are always 
+        devoid of error. It is very easy to be uncritical of the information you 
+        receive, to trust that other people put in the work of verifying and 
+        proving data so you don’t have to, but The Owl House says that an 
+        <i>evil</i> person is one who rests on their laurels despite the good 
+        they could cause (or the bad they could prevent) had they just explored 
+        different ideas. Regardless, I hope this little tangent was coherent, 
+        but I’ll return to talking about the show now. 
+      </p>
+      
+      <p>
+        The way the show ended made me feel was an emotion I’ve never really 
+        felt before with a show. For instance, I loved She-Ra and the Princesses 
+        of Power, but I’ve never felt the need to rewatch it as the ending 
+        communicated what it needed to and the conflict resolved itself nicely. 
+        When I was watching She-Ra in real-time, I wasn’t really hit with any 
+        significant theming that really resonated with me personally, so when I 
+        finished it I was happy I saw the show and moved on with my life. Before 
+        finishing The Owl House, I thought I would be devastated when the show 
+        ended, but I was met with such a unique overwhelming feeling of content 
+        afterwards. Of course I cried a lot during the finale and for a few 
+        minutes afterwards, but I felt nothing but “content” in the remaining 
+        hour I was awake; a peaceful, satisfied feeling of happiness over the 
+        show I liked so much. I knew it was over, but it ended <i>so 
+        wonderfully</i> that it didn’t leave me wanting for any more. It was a 
+        beautiful present I could open whenever I wanted to re-experience the 
+        emotions it gave me the first time I watched it, and I could wrap up 
+        that present and put it back on my shelf to unwrap again any time in the 
+        future. The present would never degrade, it never needed to be 
+        maintained, it always was pristine on my shelf, and I could always 
+        unwrap it and experience it again whenever I wanted. Throughout it all, 
+        the show felt like it was made just for me and nobody else; the creators 
+        hand-tailored this present for me alone, and the fact that it ended made 
+        me feel so extraordinary and peaceful to the extent I don’t think 
+        anything else in the world could match. 
+      </p>
+      
+      <p>
+        All in all, I’ll probably talk a lot more about The Owl House in the 
+        future. I’m rewatching the show again, and I don’t know if I’ll ever get 
+        tired of thinking about it. I started watching it after the Grom 
+        episode, when I heard a Disney Channel show about magic featured gay 
+        characters. I was right off the cusp of finishing Steven Universe, so I 
+        was excited to see more content that tangentially related to me. I 
+        caught up to the show fairly quickly after that point, and I remember 
+        frequently refreshing the website I watched it on the day a new episode 
+        released. Initially, the show had a big effect on me because it 
+        motivated me to make more friends and to leave my comfort zone; I don’t 
+        have all that many friends (see the aforementioned “I’m very shy” 
+        paragraphs above), but the show made me feel it was possible (and even 
+        easy!) if I just put in the effort. Around the same time, I started 
+        visiting a club in my school, and I’ve been attending the same club 
+        weekly since then. 
+      </p>
+      
+      <p>
+        Another huge effect of the show on me was the idea that I could do 
+        things that were “weird” and not feel bad about it. In 2021, I started 
+        calling myself autistic because I read the experiences of other autistic 
+        people and saw a lot of correlation to myself. I’ve never gotten a 
+        diagnosis or anything (and I don’t know if I ever will), but it made me 
+        feel better about myself and my personal limitations by justifying it 
+        with a label. For this reason, there’s always a chance I could not be 
+        autistic, but the presence of the label made me feel secure and happier 
+        regardless. Anyways, growing up there were moments where I was 
+        interested in doing things that I chose not to do, due to it being 
+        “<i>too weird</i>”. Reading fanfiction was one of these things: it made 
+        me uncomfortable to think about reading some person’s 2000-word story of 
+        two cartoon characters going on a date, because I always thought “it 
+        would be too weird of me, a very normal person, to indulge in this 
+        activity,” even though I definitely did want to read it. The Owl House 
+        communicated to me that it is completely fine to have these kinds of 
+        interests. A core idea of Luz’s journey is that <i>everybody</i> is 
+        weird in some way, and that on a macro-scale, your personal weirdness 
+        sort of averages out with everybody else. The Boiling Isles is a crazy 
+        place with strange people who all think they’re normal, but when viewed 
+        by an outsider like Luz, they’re all incredible and unique and weird. 
+        After watching the show, I convinced myself that things I wanted to do 
+        were worth doing, and I silenced the thoughts that came about from 
+        wanting to do things that were “too weird”. Incidentally, this includes 
+        reading fanfiction, making mashups of the one Mr. Beast Rap Battle and 
+        Splatoon songs (see below), and barking/meowing. 
+      </p>
+        
+      <p>
+        I think that’s everything I want to talk about today. I couldn’t 
+        possibly enunciate everything the show means to me, so I’ll save that 
+        for another time. I haven’t even dipped into any specific interactions 
+        between characters, or individual voice lines said that mean a lot to 
+        me! To give a precursor to whats to come: when I was rewatching the show 
+        in the two weeks leading up to the finale, I kept a little notepad next 
+        to me and made a note of moments that I thought were funny or that 
+        resonated with me in some way, and I’ve counted more than 100 moments 
+        that I’ve listed from one-line jokes to scenes I think about on a daily 
+        basis. I’ll be bringing lots of this in the future (each in their own 
+        little section like how it was organized on this page, so feel free to 
+        skip it if you want!). I wish it were possible to fully put my emotions 
+        about this show into words, but I don’t think thats possible. I just 
+        really, really, <i>really</i> like it. 
+      </p>
+      
+      <h2><center>Conclusion</center></h2> 
+      
+      <p>
+        Thanks for reading my awesome post. The next big thing on my plate is a 
+        huge project I have to complete for a class I’m taking due this week. 
+        It’s related to training a deep learning model, which famously is 
+        something that requires lots of time to execute without me actively 
+        doing anything, so I hope it finishes in time. I sort of procrastinated 
+        a lot on it. Also, I’ll still be rewatching The Owl House. I’ve been 
+        <a target="_blank" rel="noopener noreferrer" 
+        href="https://archiveofourown.org/works/43398294/chapters/109096050">
+        reading a fanfiction</a> lately that I’m just about caught up with and 
+        am looking for more. Finally, if you want to contact me about anything, 
+        you can find me on:
+        
+        <ul>
+          <li>Discord: <b>URLslug#6738</b></li>
+          <li>Twitter: <b>@URLslug</b></li>
+        </ul>
+        
+        See you around! :+) 
+      </p>
+      
+      <p>
+        -Sophie 
+      </p>
+      
+      <center> 
+      <audio controls>
+        <source src="https://dl.sndup.net/ktxb/mr-beast-endolphin-surge.mp3" 
+        type="audio/mpeg">
+      </audio> 
+      <center> 
+      
+    </section> 
+    
+  </body>
+</html>

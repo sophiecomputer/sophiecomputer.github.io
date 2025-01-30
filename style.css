@@ -1,0 +1,24 @@
+body {
+  background-color: lightblue; 
+  background-image: url('dogs.jpg'); 
+  background-repeat: no-repeat; 
+  background-attachment: fixed; 
+  background-size: cover; 
+  
+  color: black;
+  font-family: Verdana;
+}
+
+h1 { background-color: powderblue; }
+h2 { background-color: powderblue; }
+h3 { background-color: powderblue; }
+h4 { background-color: powderblue; }
+h5 { background-color: powderblue; }
+p  { background-color: powderblue; }
+section { background-color: powderblue; }
+.center {
+  display: block; 
+  margin-left: auto; 
+  margin-right: auto; 
+  width: 50%; 
+}
