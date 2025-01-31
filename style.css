@@ -1,24 +1,366 @@
-body {
-  background-color: lightblue; 
-  background-image: url('dogs.jpg'); 
-  background-repeat: no-repeat; 
-  background-attachment: fixed; 
-  background-size: cover; 
-  
-  color: black;
-  font-family: Verdana;
+/* Some elements depend on the screen size. */ 
+
+@media (min-width: 1000px) { /* Large screens */ 
+    :root {
+        --tp: 400px; /* Text position */  
+    }
+
+    .sidebar-table { 
+        display: none; 
+    }
+
+    .sidebar-left {
+        height: 100%;
+        width: 400px;
+        background-color: #C0D7C0;
+        position: fixed;
+        top: 0;
+        left: 0;
+        margin: 0;
+        border-right: solid black; 
+        border-right-width: thin; 
+        background-image: url('media/no-texture.png'); 
+        -webkit-animation: marquee 16s infinite linear; 
+    }
+    
+    .profile-pic-left { 
+        margin-left: 10%;
+        margin-right: 10%; 
+        margin-top: 10%;
+        border: solid black; 
+        border-width: 1px; 
+        width: 80%; 
+    }
+
+    .profile-pic-top {
+        display: none; 
+    }
+
+    .sidebar-text-area {
+       padding-left: 10%; 
+       padding-top: 10%; 
+       padding-bottom: 10%;
+       margin: 10%;
+       background-color: #540c4f;
+    }
+    
+    .sidebar-text {
+        font-family: "Times New Roman", Times, serif; 
+        color: #f4b8f0;
+        font-size: 1.25em; 
+        padding-left: 0;
+        padding-top: 0; 
+        padding-bottom: 0;
+        margin: 0;
+
+        a:link { color: pink; }
+        a:visited { color: white; } 
+    } 
+    
+    .sidebar-right {
+        height: 100%;
+        width: 400px;
+        background-color: #C0D7C0;
+        position: fixed;
+        top: 0;
+        left: 100%-200px;
+        right: 0; 
+        margin: 0;
+        border-right: solid black; 
+        border-right-width: thin; 
+        background-image: url('media/no-texture.png'); 
+        -webkit-animation: marquee 16s infinite linear; 
+    }
+    
+    .profile-pic-right { 
+        margin-left: 10%;
+        margin-right: 10%; 
+        margin-top: 10%;
+        border: solid black; 
+        border-width: 1px; 
+        width: 80%; 
+    }
+
+    .profile-pic-top {
+        display: none; 
+    }
+    
+    .sidebar-text-right {
+        font-family: "Tiems New Roman", Times, serif; 
+        color: #2A2D26;
+        font-size: 1.25em; 
+        padding-left: 10%;
+        padding-top: 10px; 
+        padding-bottom: 0;
+        margin: 0;
+        
+        a:link { color: pink; }
+        a:visited { color: white; } 
+    } 
+    
+    .main-table {
+        table-layout: auto; 
+        font-family: "Times New Roman", Times, serif; 
+        color: #2A2D26; 
+        font-size: 20px; 
+        margin-left: 20px; 
+        width: calc(100% - 40px);
+        
+        th, td, tr {        
+            padding-left: 10px;
+            padding-right: 10px;
+            padding-top: 10px; 
+            padding-bottom: 10px; 
+        }
+    }
+} 
+
+@media (max-width: 999px) { /* Small screens */ 
+    :root { 
+        --tp: 0;
+    } 
+
+    .sidebar-table {
+        width: 100%; 
+        border-top: 1px solid black;
+        border-collapse: collapse;
+        padding-top: 10px; 
+        table-layout: auto;
+
+        th { 
+          border-left: 1px solid black; 
+          border-right: 1px solid black; 
+        } 
+    }
+
+    .sidebar {
+        display: none; 
+    }
+    
+    .profile-pic { 
+        display: none; 
+    }
+
+    .profile-pic-top {
+        width: 100px; 
+        border: 1px solid black;
+        margin: 10px; 
+    }
+    
+    .sidebar-text {
+        display: none; 
+    }
+    
+    .main-table {
+        table-layout: auto; 
+        font-family: "Times New Roman", Times, serif; 
+        color: #2A2D26; 
+        font-size: 16px; 
+        margin-left: 0px; 
+        width: 100%;
+        
+        th, td, tr { 
+            padding-left: 10px;
+            padding-right: 10px; 
+            padding-top: 10px; 
+            padding-bottom: 10px; 
+        }
+    }
 }
 
-h1 { background-color: powderblue; }
-h2 { background-color: powderblue; }
-h3 { background-color: powderblue; }
-h4 { background-color: powderblue; }
-h5 { background-color: powderblue; }
-p  { background-color: powderblue; }
-section { background-color: powderblue; }
-.center {
-  display: block; 
-  margin-left: auto; 
-  margin-right: auto; 
-  width: 50%; 
+@media (max-width: 599px) { /* Tiny screens */ 
+    .main-table {
+        table-layout: fixed; 
+        font-family: "Times New Roman", Times, serif; 
+        color: #2A2D26; 
+        font-size: 12px; 
+        margin-left: 0px; 
+        width: 100%;
+        
+        th, td, tr { 
+            padding-left: 2px;
+            padding-right: 2px; 
+            padding-top: 2px; 
+            padding-bottom: 2px; 
+        }
+    }
+}
+    
+/* Everything below here is screen-size invariant. */ 
+
+:target {
+    animation-name: backgroundchange; 
+    animation-duration: 5s;
+}
+
+@keyframes backgroundchange {
+    from { background-color: #D5E6B5; } 
+    to   { background-color: #F4F8F4; } 
+}
+
+:target::before {
+    background-color: #D5E6B5; 
+}
+
+@-webkit-keyframes marquee {
+    0% { background-position: 0; } 
+    100% { background-position: -400px; } 
+}
+
+body, html {
+    padding: 0;
+    margin: 0;
+    background-color: #F4F8F4;
+    overflow-x: hidden;
+}
+
+.webpage {
+    background-color: #F4F8F4;
+}
+
+.main-area { 
+    background-color: #F4F8F4;
+    height: 100%; 
+    position: relative;
+    margin-left: var(--tp); /* 200px; */
+    margin-right: var(--tp);
+}
+
+.title-area {
+    background-color: #540c4f; 
+    position: relative;
+    top: 0;
+    margin: 0; 
+    padding: 0; 
+}
+
+.title-text { 
+    font-family: "Times New Roman", Times, serif; 
+    color: pink; 
+    font-size: 60px; 
+    padding-left: 20px; 
+    padding-top: 20px; 
+    padding-right: 20px; 
+    padding-bottom: 20px; 
+    margin: 0;
+}
+
+.subtitle-text { 
+    font-family: "Times New Roman", Times, serif; 
+    color: #464F46; 
+    font-size: 20px; 
+    padding-left: 20px; 
+    padding-top: 10px; 
+    padding-bottom: 20px;
+    padding-right: 20px;
+    margin: 0;   
+}
+
+.main-content {  
+    position: relative; 
+    top: 0; 
+    height: 100%;
+    padding-bottom: 20px; 
+}
+
+.last-updated {
+    position: relative; 
+    top: 0; 
+    padding-bottom: 20px; 
+}
+
+.main-text { 
+    font-family: "Times New Roman", Times, serif; 
+    color: #2A2D26; 
+    font-size: 20px; 
+    padding-left: 0;
+    padding-top: 10px;
+    margin: 0; 
+}
+
+.main-section {
+    padding-top: 14px;
+    padding-bottom: 14px;
+    padding-left: 20px;
+    padding-right: 20px; 
+    margin-top: 0; 
+    border: solid black; 
+    border-top-width: 1px;
+    border-bottom-width: 0px;
+    border-left-width: 0; 
+    border-right-width: 0; 
+    width: calc(100% - 40px);
+}
+
+.main-text-h2 {
+    font-family: "Times New Roman", Times, serif; 
+    color: #2A2D26; 
+    font-size: 28px;  
+    margin: 0; 
+}
+
+.main-text-list {
+    font-family: "Times New Roman", Times, serif; 
+    color: #2A2D26; 
+    font-size: 20px; 
+    padding-left: 40px; 
+    padding-top: 10px; 
+    padding-right: 20px; 
+    margin: 0; 
+}
+
+.main-text-list-indent {
+    font-family: "Times New Roman", Times, serif; 
+    color: #2A2D26; 
+    font-size: 20px; 
+    padding-left: 60px; 
+    padding-top: 10px; 
+    padding-right: 20px; 
+    margin: 0; 
+}
+
+.main-text-details {
+    font-family: "Times New Roman", Times, serif; 
+    color: #2A2D26; 
+    font-size: 20px;  
+    padding-top: 10px; 
+    padding-right: 20px; 
+    margin: 0; 
+}
+
+.last-updated-text { 
+    font-family: "Times New Roman", Times, serif; 
+    font-style: italic; 
+    color: #8B8B8B; 
+    font-size: 14px; 
+    padding-left: 20px; 
+    padding-top: 10px; 
+    padding-right: 20px; 
+    margin: 0; 
+}
+
+.main-table {
+    border: 1px solid black; 
+    border-collapse: collapse; 
+    padding-top: 10px; 
+
+    th, td, tr {
+        border-collapse: collapse; 
+        border: 1px solid black;
+    }
+
+    th {
+        background-color: #BDCFBA;
+    }
+
+    tr { 
+        background-color: #DCE6DA;
+    }
+}
+
+.tab-history-text { 
+    font-family: "Times New Roman", Times, serif; 
+    color: #8B8B8B; 
+    font-size: 14px; 
+    margin: 0; 
 }
