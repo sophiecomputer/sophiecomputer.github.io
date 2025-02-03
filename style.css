@@ -5,33 +5,26 @@
         --tp: 400px; /* Text position */  
     }
 
+    .main-area { 
+        background-color: #E7E7E7;
+        height: 100%; 
+        width: calc(100% - 800px); 
+    }
+
     .sidebar-table { 
         display: none; 
     }
 
-    .sidebar-left {
-        height: 100%;
+    .sidebar {
         width: 400px;
+        padding: 40px; 
         background-color: #C0D7C0;
-        position: fixed;
-        top: 0;
-        left: 0;
-        margin: 0;
         border-right: solid black; 
         border-right-width: thin; 
         background-image: url('media/no-texture.png'); 
         -webkit-animation: marquee 20s infinite linear; 
     }
     
-    .profile-pic-left { 
-        margin-left: 10%;
-        margin-right: 10%; 
-        margin-top: 10%;
-        border: solid black; 
-        border-width: 1px; 
-        width: 80%; 
-    }
-
     .profile-pic-top {
         display: none; 
     }
@@ -41,8 +34,10 @@
        padding-top: 5%; 
        padding-bottom: 5%;
        padding-right: 5%; 
-       margin: 10%;
+       margin-top: 0px;
+       margin-bottom: 40px; 
        background-color: #540c4f;
+       object-fit: contain; 
     }
     
     .sidebar-text {
@@ -83,44 +78,21 @@
         text-align: center; 
     } 
     
-    .sidebar-right {
-        height: 100%;
-        width: 400px;
-        background-color: #C0D7C0;
-        position: fixed;
-        top: 0;
-        left: 100%-200px;
-        right: 0; 
-        margin: 0;
-        border-right: solid black; 
-        border-right-width: thin; 
-        background-image: url('media/no-texture.png'); 
-        -webkit-animation: marquee 20s infinite linear; 
-    }
-            
-    .profile-pic-right { 
-        margin-left: 10%;
-        margin-right: 10%; 
-        margin-top: 10%;
+    .profile-pic {  
+        padding-left: 5%; 
+        padding-top: 5%; 
+        padding-bottom: 5%;
+        padding-right: 5%; 
+        margin-top: 0px;
+        margin-bottom: 40px; 
+        background-color: #540c4f;
         border: solid black; 
         border-width: 1px; 
-        width: 80%; 
     }
 
     .profile-pic-top {
         display: none; 
     }
-    
-    .sidebar-text-right {
-        font-family: "Tiems New Roman", Times, serif; 
-        color: #2A2D26;
-        font-size: 1.25em; 
-        padding-bottom: 0;
-        margin: 0;
-        
-        a:link { color: pink; }
-        a:visited { color: white; } 
-    } 
     
     .main-table {
         table-layout: auto; 
@@ -240,14 +212,9 @@ body, html {
 
 .webpage {
     background-color: #E7E7E7;
-}
-
-.main-area { 
-    background-color: #E7E7E7;
+    display: flex; 
+    width: 100%;
     height: 100%; 
-    position: relative;
-    margin-left: var(--tp); /* 200px; */
-    margin-right: var(--tp);
 }
 
 .title-area {
