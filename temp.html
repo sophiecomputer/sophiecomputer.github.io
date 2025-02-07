@@ -9,6 +9,14 @@
     <link rel="icon" type="image/x-icon" href="media/star-blink.gif">
   </head>
   <body class="webpage">
+    <script> 
+      const query_string = window.location.search; 
+      const url_params = new URLSearchParams(query_string); 
+      if (!url_params.has('contentonly')) {
+        window.location.replace("index.html?redirect=temp.html");
+      }
+    </script> 
+
     <div style="width: 100%; height: 100%;">
       <div class="main-content">
         <div class="main-section">
