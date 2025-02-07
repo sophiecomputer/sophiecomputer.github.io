@@ -7,7 +7,6 @@
 
     .main-area { 
         background-color: #E7E7E7;
-        height: 100%; 
         width: calc(100% - 800px); 
     }
 
