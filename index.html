@@ -13,10 +13,10 @@
       <div class="sidebar-text-area"> 
         <p class="sidebar-text">
           <img src="media/star-blink.gif", style="height: 1em">
-          <a href="javascript:void(0);" onclick="return change_me('main.html');" id="sidebar-home">Home</a></p>
+          <a href="javascript:void(0);" onclick="return change_me('main.html', false);" id="sidebar-home">Home</a></p>
         <p class="sidebar-text">
           <img src="media/star-blink.gif", style="height: 1em">
-          <a href="javascript:void(0);" onclick="return change_me('temp.html');" id="sidebar-temp">TEMP</a></p>
+          <a href="javascript:void(0);" onclick="return change_me('temp.html', false);" id="sidebar-temp">TEMP</a></p>
         <p class="sidebar-text">
           <img src="media/star-blink.gif", style="height: 1em">
           <a href="./index.html">Research</a></p>
@@ -62,23 +62,46 @@
         </marquee>
       </div>
       <div>
-        <iframe src="main.html" id="iframe-content" name="iframe-content" onload='javascript:(function(o){o.style.height=o.contentWindow.document.body.scrollHeight+"px";}(this));' style="height:200px;width:100%;border:none;overflow:hidden;"></iframe>
+        <object data="main.html" id="iframe-content" name="iframe-content" onload='javascript:(function(o){o.style.height=o.contentWindow.document.body.scrollHeight+"px";}(this));' style="height:200px;width:100%;border:none;overflow:hidden;"></object>
       </div>
     </div>
 
     <script>
-      function change_me(loc) {
+      function change_me(loc, replace) {
+        // window.history.replaceState(null, null, loc); 
         var iframe = document.getElementById('iframe-content'); 
-        iframe.src = loc + '?contentonly';
-        window.history.pushState(null, null, loc);
+        iframe.data = loc + '?contentonly';
+        if (replace)
+          window.history.replaceState(null, null, loc); 
+        else 
+          window.history.pushState(null, null, loc); 
       }
 
       const query_string = window.location.search; 
       const url_params = new URLSearchParams(query_string); 
       if (url_params.has('redirect')) {
         loc = url_params.get('redirect'); 
-        change_me(loc); 
+        change_me(loc, true); 
       }
+      else if (url_params.has('contentonly')) {
+        // This page can't be displayed as content! Just resolve it to "main.html".
+        window.location.replace("main.html?contentonly"); 
+      }
+      else {
+        change_me('main.html', true); 
+      }
+
+      window.addEventListener('popstate', function(event) {
+        iframe = document.getElementById('iframe-content');
+        
+        idx = iframe.data.indexOf('?');
+        if (idx == -1) front_part = iframe.data; 
+        else front_part = iframe.data.substring(0, idx); 
+        
+        if (front_part != document.location)
+          iframe.data = document.location + '?contentonly';
+      }); 
+
     </script> 
 
     <div class="sidebar">
