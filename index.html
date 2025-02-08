@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>SOPHIE COMPUTER</title>
-    <link rel="stylesheet" href="./style.css">
+    <link rel="stylesheet" href="./style-sidebar.css">
     <link rel="icon" type="image/x-icon" href="media/star-blink.gif">
   </head>
   <body class="webpage">
@@ -17,18 +17,6 @@
         <p class="sidebar-text">
           <img src="media/star-blink.gif", style="height: 1em">
           <a href="javascript:void(0);" onclick="return change_me('temp.html', false);" id="sidebar-temp">TEMP</a></p>
-        <p class="sidebar-text">
-          <img src="media/star-blink.gif", style="height: 1em">
-          <a href="./index.html">Research</a></p>
-        <p class="sidebar-text">
-          <img src="media/star-blink.gif", style="height: 1em">
-          <a href="./index.html">Projects</a></p> 
-        <p class="sidebar-text">
-          <img src="media/star-blink.gif", style="height: 1em">
-          <a href="./index.html">Teaching</a></p> 
-        <p class="sidebar-text">
-          <img src="media/star-blink.gif", style="height: 1em">
-          <a href="./index.html">Cranes</a></p>
       </div>
 
       <div class="sidebar-text-area"> 
@@ -61,6 +49,24 @@
           </div>  
         </marquee>
       </div>
+      <div class="topbar"> 
+        <table class="topbar-table"> 
+          <tr>
+            <th style="border-left: 0;">
+              <img src="media/star-blink.gif", style="height: 1em">
+              <a href="javascript:void(0);" onclick="return change_me('main.html', false);" class="sidebar-text">Home</a>
+            </th>
+            <th>
+              <img src="media/star-blink.gif", style="height: 1em">
+              <a href="javascript:void(0);" onclick="return change_me('temp.html', false);" class="sidebar-text">TEMP</a>
+            </th>
+            <th style="border-right: 0;">
+              <img src="media/star-blink.gif", style="height: 1em">
+              <a href="javascript:void(0);" onclick="return change_me('temp.html', false);" class="sidebar-text">TEMP</a>
+            </th>
+          </tr> 
+        </table>
+      </div>
       <div>
         <object data="main.html" id="iframe-content" name="iframe-content" onload='javascript:(function(o){o.style.height=o.contentWindow.document.body.scrollHeight+"px";}(this));' style="height:200px;width:100%;border:none;overflow:hidden;"></object>
       </div>
@@ -68,7 +74,6 @@
 
     <script>
       function change_me(loc, replace) {
-        // window.history.replaceState(null, null, loc); 
         var iframe = document.getElementById('iframe-content'); 
         iframe.data = loc + '?contentonly';
         if (replace)

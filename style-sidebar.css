@@ -1,0 +1,144 @@
+/* Some elements depend on the screen size. */ 
+
+@media (min-width: 1600px) { /* Large screens */ 
+    :root {
+        --barwidth: 400px;
+        --barpadding: 40px;
+        --displaytopbar: none; 
+    }
+}
+
+@media (max-width: 1599px) {
+    :root {
+        --barwidth: 200px; 
+        --barpadding: 20px; 
+        --displaytopbar: none; 
+    }
+}
+
+@media (max-width: 1000px) {
+    :root {
+        --barwidth: 0px;
+        --barpadding: 0px; 
+        --displaytopbar: initial; 
+    }
+}
+
+.main-area { 
+    background-color: #E7E7E7;
+    width: calc(100% - var(--barwidth) * 2); 
+}
+
+.sidebar {
+    width: var(--barwidth);
+    padding: var(--barpadding); 
+    background-color: #C0D7C0;
+    border-right: solid black; 
+    border-right-width: thin; 
+    background-image: url('media/no-texture.png'); 
+  
+    @media (prefers-reduced-motion: no-preference) {
+      -webkit-animation: marquee 20s infinite linear;
+    }
+}
+
+.sidebar-text-area {
+   padding-left: 5%; 
+   padding-top: 5%; 
+   padding-bottom: 5%;
+   padding-right: 5%; 
+   margin-top: 0px;
+   margin-bottom: var(--barpadding); 
+   background-color: #540c4f;
+   object-fit: contain; 
+}
+
+.sidebar-text {
+    font-family: "Times New Roman", Times, serif; 
+    color: #f4b8f0;
+    font-size: 1.25em; 
+    padding-left: 0;
+    padding-top: 0; 
+    padding-bottom: 0;
+    margin: 0;
+
+    a:link { color: pink; }
+    a:visited { color: white; } 
+} 
+
+.sidebar-text-title {
+    font-family: "Times New Roman", Times, serif; 
+    color: #f4b8f0;
+    font-size: 1.25em; 
+    padding-left: 0;
+    padding-top: 0; 
+    padding-bottom: 0;
+    margin: 0;
+    text-align: center; 
+
+    a:link { color: pink; }
+    a:visited { color: white; } 
+} 
+
+.sidebar-text-subtitle {
+    font-family: "Times New Roman", Times, serif; 
+    color: #fce9fa;
+    font-size: 1.25em; 
+    padding-left: 0;
+    padding-top: 0; 
+    padding-bottom: 0;
+    margin: 0;
+    text-align: center;
+    font-style: italic;
+} 
+
+@-webkit-keyframes marquee {
+    0% { background-position: 0 0; } 
+    100% { background-position: calc(var(--barwidth)*2) var(--barwidth); } 
+}
+
+body, html {
+    padding: 0;
+    margin: 0;
+    background-color: #E7E7E7;
+    overflow-x: hidden;
+}
+
+.webpage {
+    background-color: #E7E7E7;
+    display: flex; 
+    width: 100%;
+    height: 100%; 
+}
+
+.title-area {
+    background-color: #540c4f; 
+}
+
+.title-text { 
+    font-family: "Times New Roman", Times, serif; 
+    color: pink; 
+    font-size: 60px; 
+    padding-left: 20px; 
+    padding-top: 20px; 
+    padding-right: 20px; 
+    padding-bottom: 20px; 
+    margin: 0;
+}
+
+.topbar {
+    display: var(--displaytopbar);
+    .topbar-table {
+        width: 100%; 
+        border-top: 1px solid black;
+        border-collapse: collapse;
+        padding-top: 10px; 
+        table-layout: auto;
+
+        th { 
+          background-color: #540c4f;
+          border-left: 1px solid black; 
+          border-right: 1px solid black; 
+        } 
+    }
+}

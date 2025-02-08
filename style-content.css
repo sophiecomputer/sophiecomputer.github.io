@@ -1,0 +1,122 @@
+body, html {
+    padding: 0;
+    margin: 0;
+    background-color: #E7E7E7;
+    overflow-x: hidden;
+}
+
+.webpage {
+    background-color: #E7E7E7;
+    display: flex; 
+    width: 100%;
+    height: 100%; 
+}
+
+.main-content {  
+    position: relative; 
+    top: 0; 
+    height: 100%;
+    padding-bottom: 20px; 
+}
+
+.last-updated {
+    position: relative; 
+    top: 0; 
+    padding-bottom: 20px; 
+}
+
+.main-text { 
+    font-family: "Times New Roman", Times, serif; 
+    color: #2A2D26; 
+    font-size: 20px; 
+    padding-left: 0;
+    padding-top: 10px;
+    margin: 0; 
+}
+
+.main-section {
+    padding-top: 14px;
+    padding-bottom: 14px;
+    padding-left: 20px;
+    padding-right: 20px; 
+    margin-top: 0; 
+    border: solid black; 
+    border-top-width: 1px;
+    border-bottom-width: 0px;
+    border-left-width: 0; 
+    border-right-width: 0; 
+    width: calc(100% - 40px);
+}
+
+.main-text-h2 {
+    font-family: "Times New Roman", Times, serif; 
+    color: #2A2D26; 
+    font-size: 28px;  
+    margin: 0; 
+}
+
+.main-text-list {
+    font-family: "Times New Roman", Times, serif; 
+    color: #2A2D26; 
+    font-size: 20px; 
+    padding-left: 40px; 
+    padding-top: 10px; 
+    padding-right: 20px; 
+    margin: 0; 
+}
+
+.main-text-list-indent {
+    font-family: "Times New Roman", Times, serif; 
+    color: #2A2D26; 
+    font-size: 20px; 
+    padding-left: 60px; 
+    padding-top: 10px; 
+    padding-right: 20px; 
+    margin: 0; 
+}
+
+.main-text-details {
+    font-family: "Times New Roman", Times, serif; 
+    color: #2A2D26; 
+    font-size: 20px;  
+    padding-top: 10px; 
+    padding-right: 20px; 
+    margin: 0; 
+}
+
+.last-updated-text { 
+    font-family: "Times New Roman", Times, serif; 
+    font-style: italic; 
+    color: #8B8B8B; 
+    font-size: 14px; 
+    padding-left: 20px; 
+    padding-top: 10px; 
+    padding-right: 20px; 
+    margin: 0; 
+}
+
+.main-table {
+    border: 1px solid black; 
+    border-collapse: collapse; 
+    padding-top: 10px; 
+
+    th, td, tr {
+        border-collapse: collapse; 
+        border: 1px solid black;
+    }
+
+    th {
+        background-color: #BDCFBA;
+    }
+
+    tr { 
+        background-color: #DCE6DA;
+    }
+}
+
+.tab-history-text { 
+    font-family: "Times New Roman", Times, serif; 
+    color: #8B8B8B; 
+    font-size: 14px; 
+    margin: 0; 
+}
