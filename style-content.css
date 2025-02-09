@@ -50,9 +50,17 @@ body, html {
 
 .main-text-h2 {
     font-family: "Times New Roman", Times, serif; 
-    color: #2A2D26; 
+    color: #17043a; 
     font-size: 28px;  
     margin: 0; 
+}
+
+.main-text-h3 {
+    font-family: "Times New Roman", Times, serif; 
+    color: #7a63a3; 
+    font-size: 20px;  
+    margin: 0;
+    padding-top: 10px;
 }
 
 .main-text-list {
