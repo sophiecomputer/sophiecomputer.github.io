@@ -48,6 +48,23 @@ body, html {
     width: calc(100% - 40px);
 }
 
+.main-text-h1 {
+    font-family: "Times New Roman", Times, serif; 
+    color: #17043a; 
+    font-size: 32px;  
+    margin: 0;
+    text-align: center; 
+}
+
+.main-text-subtitle {
+    font-family: "Times New Roman", Times, serif; 
+    color: #7a63a3; 
+    font-size: 20px;  
+    margin: 0;
+    padding-top: 10px;
+    text-align: center; 
+}
+
 .main-text-h2 {
     font-family: "Times New Roman", Times, serif; 
     color: #17043a; 
@@ -57,7 +74,7 @@ body, html {
 
 .main-text-h3 {
     font-family: "Times New Roman", Times, serif; 
-    color: #7a63a3; 
+    color: #17043a; 
     font-size: 20px;  
     margin: 0;
     padding-top: 10px;

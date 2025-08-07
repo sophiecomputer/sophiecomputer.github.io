@@ -162,5 +162,15 @@
     <pubDate>Tue, 29 Aug 2024 20:58:00 GMT</pubDate>
   </item>
   
+  <item> 
+    <title>0014 [2025-08-07]: Power Profiling in Accel-Sim</title> 
+    <description> 
+      I describe a research project I worked on and finished last month.
+    </description> 
+    <link>https://sophie.computer/posts/0014.html</link>
+    <guid>https://sophie.computer/posts/0014.html</guid> 
+    <pubDate>Thu, 7 Aug 2025 5:37:00 GMT</pubDate>
+  </item>
+  
 </channel>
 </rss>
