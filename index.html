@@ -71,7 +71,23 @@
         </table>
       </div>
       <div>
-        <object data="main.html" id="iframe-content" name="iframe-content" onload='javascript:(function(o){o.style.height=o.contentWindow.document.body.scrollHeight+"px";}(this));' style="height:200px;width:100%;border:none;overflow:hidden;"></object>
+        <object 
+          data="main.html" 
+          id="iframe-content" 
+          name="iframe-content" 
+          onload='javascript:(function(o){
+            const details = o.contentWindow.document.querySelector("details");
+            if (details) {
+              const wasOpen = details.open;
+              details.open = true; // Temporarily measure full height;
+              o.style.height = o.contentWindow.document.body.scrollHeight + "px";
+              details.open = wasOpen; 
+            }
+            else {
+              o.style.height = o.contentWindow.document.body.scrollHeight + "px";
+            }
+          }(this));' 
+          style="width: 100%; border: none; overflow: hidden;"></object>
       </div>
     </div>
 

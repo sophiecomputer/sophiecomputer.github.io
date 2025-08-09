@@ -25,13 +25,28 @@ body, html {
     padding-bottom: 20px; 
 }
 
-p {
+p, summary {
     font-family: "Times New Roman", Times, serif; 
     color: #2A2D26; 
     font-size: 20px; 
     padding-left: 0;
     padding-top: 10px;
     margin: 0; 
+}
+
+summary {
+    cursor: pointer; 
+}
+
+summary::before {
+  content: ">"; /* Custom icon (e.g., arrow) */
+  display: inline-block;
+  margin-right: 0.5em; /* Space between icon and text */
+  font-weight: bold; 
+}
+
+details[open] summary::before {
+  transform: rotate(90deg); /* Rotate arrow when open */
 }
 
 .main-section {
@@ -79,7 +94,7 @@ h3 {
 h4 {
     font-family: "Times New Roman", Times, serif; 
     color: #17043a; 
-    font-size: 20px;  
+    font-size: 24px;  
     margin: 0;
     padding-top: 10px;
     font-weight: normal; 
@@ -106,13 +121,23 @@ ul {
     margin: 0; 
 }
 
-.main-text-details {
+details {
     font-family: "Times New Roman", Times, serif; 
     color: #2A2D26; 
     font-size: 20px;  
-    padding-top: 10px; 
+    padding-top: 0px; 
     padding-right: 20px; 
-    margin: 0; 
+    margin: 0;
+    display: block; 
+}
+
+details > * {
+    display: block; 
+}
+
+details:not([open]) > *:not(summary) {
+    visibility: hidden; 
+    height: auto;
 }
 
 .last-updated-text { 
