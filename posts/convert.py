@@ -77,12 +77,12 @@ html = """<!DOCTYPE html>
       <div class="main-content">
         <div class="main-section">
           
-          <p class="main-text-h1">%s</p>
-          <p class="main-text-subtitle">%s</p>
+          <h1>%s</h1>
+          <h2>%s</h2>
 
 """ % (header, number, title, subheader) 
 
-# Classify the markdown lines as either h2's, h3's, or paragraphs, and add them
+# Classify the markdown lines as either h4's, h3's, or paragraphs, and add them
 # to the output. 
 for line in markdown: 
     if len(line) == 0: 
@@ -90,14 +90,14 @@ for line in markdown:
 
     html += "          "
 
-    if line.startswith("##"):
+    if line.startswith("###"):
         line = line[2:].strip()
-        html += "<p class=\"main-text-h3\">" + line + "</p>"
-    elif line.startswith("#"):
+        html += "<h4>" + line + "</h4>"
+    elif line.startswith("##"):
         line = line[1:].strip()
-        html += "<p class=\"main-text-h2\">" + line + "</p>"
+        html += "<h3>" + line + "</h3>"
     else:
-        html += "<p class=\"main-text\">" + line + "</p>"
+        html += "<p>" + line + "</p>"
     
     html += "\n"
 
