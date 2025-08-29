@@ -142,3 +142,7 @@ body, html {
         } 
     }
 }
+
+.no-animations .sidebar {
+    animation: none; 
+}

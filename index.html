@@ -10,6 +10,8 @@
   </head>
   <body class="webpage">
     <div class="sidebar">
+      <button id="anim-toggle">Toggle Animations/GIFs</button>
+
       <div class="sidebar-text-area"> 
         <p class="sidebar-text">
           <img src="/media/star-blink.gif", style="height: 1em">
@@ -46,7 +48,7 @@
     
     <div class="main-area">
       <div class="title-area">  
-        <marquee> 
+        <marquee id="title-marquee"> 
           <div style="width: calc(100% - 120px);">
             <p class="title-text">SOPHIE SOPHIE SOPHIE SOPHIE SOPHIE SOPHIE SOPHIE SOPHIE</p>
           </div>  
@@ -91,6 +93,21 @@
       </div>
     </div>
 
+    <div class="sidebar">
+      <div class="sidebar-text-area"> 
+        <p class="sidebar-text-title" style="padding-bottom: 5%"> 
+          THE SOPHIE ITSELF</p> 
+        <img id="avatar-gif" src="/media/avatar.gif" alt="Super cute profile picture of a drawn girl winking" style="max-width: 100%;">
+        <p class="sidebar-text-subtitle" style="padding-top: 10px">
+          Strongest in the Universe</p>
+      </div>
+      <div class="sidebar-text-area"> 
+        <p class="sidebar-text-title" style="padding-bottom: 5%"> 
+          VIDEO OF THE TIMES</p>
+        <iframe width="100%" height="315" src="https://www.youtube.com/embed/n5n7CSGPzqw?si=pNOgFj6k4j7HNhKC" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+      </div>
+    </div>
+
     <script>
       function change_me(loc, replace) {
         var iframe = document.getElementById('iframe-content'); 
@@ -126,21 +143,19 @@
           iframe.data = document.location + '?contentonly';
       }); 
 
+      // Animation toggle
+      const toggle_button = document.getElementById("anim-toggle");
+      const avatar_gif = document.getElementById("avatar-gif"); 
+      const title_marquee = document.getElementById("title-marquee"); 
+      const body = document.body; 
+      
+      let animations_enabled = true; 
+      toggle_button.addEventListener("click", () => {
+        animations_enabled = !animations_enabled; 
+        body.classList.toggle("no-animations");
+        avatar_gif.src = animations_enabled ? "/media/avatar.gif" : "/media/avatar.png";
+      }); 
     </script> 
 
-    <div class="sidebar">
-      <div class="sidebar-text-area"> 
-        <p class="sidebar-text-title" style="padding-bottom: 5%"> 
-          THE SOPHIE ITSELF</p> 
-        <img src="/media/avatar.gif" alt="Super cute profile picture of a drawn girl winking" style="max-width: 100%;">
-        <p class="sidebar-text-subtitle" style="padding-top: 10px">
-          Strongest in the Universe</p>
-      </div>
-      <div class="sidebar-text-area"> 
-        <p class="sidebar-text-title" style="padding-bottom: 5%"> 
-          VIDEO OF THE TIMES</p>
-        <iframe width="100%" height="315" src="https://www.youtube.com/embed/n5n7CSGPzqw?si=pNOgFj6k4j7HNhKC" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-      </div>
-    </div>
   </body>
 </html>
