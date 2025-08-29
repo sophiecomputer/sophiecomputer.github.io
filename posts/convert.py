@@ -84,17 +84,29 @@ html = """<!DOCTYPE html>
 
 # Classify the markdown lines as either h4's, h3's, or paragraphs, and add them
 # to the output. 
-for line in markdown: 
+for line in markdown:
     if len(line) == 0: 
         continue 
+
+    # Substitute asterisks with italics.
+    while mat := re.match(r".*(\*[^\*]+\*).*", line):
+        text = mat[1][1:-1]
+        line = line[:mat.start(1)] + "<i>" + text + "</i>" + line[mat.end(1):]
+
+    # Substitute links.
+    while mat := re.match(r".*(\[[^\]]+\])(\([^\)]+\)).*", line): 
+        text = mat[1][1:-1]
+        link = mat[2][1:-1]
+        line = line[:mat.start(1)] + f"<a href=\"{link}\">{text}</a>" \
+            + line[mat.end(2):]
 
     html += "          "
 
     if line.startswith("###"):
-        line = line[2:].strip()
+        line = line[3:].strip()
         html += "<h4>" + line + "</h4>"
     elif line.startswith("##"):
-        line = line[1:].strip()
+        line = line[2:].strip()
         html += "<h3>" + line + "</h3>"
     else:
         html += "<p>" + line + "</p>"
