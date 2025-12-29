@@ -41,19 +41,19 @@
 @media (prefers-reduced-motion: no-preference) {
     .sidebar {
         animation:
-            marquee-fast 1s linear, 
-            marquee-slow 2s ease-out 1s forwards;
+            marquee-fast 1s 3 linear, 
+            marquee-slow 2s ease-out 3s forwards;
     }
 }
 
 @-webkit-keyframes marquee-fast {
-    from { background-position: 0% 0%; }
-    to { background-position: 8% 4%; } 
+    0% { background-position: 0 0; }
+    100% { background-position: 50px 50px; } 
 }
 
 @-webkit-keyframes marquee-slow {
-    from { background-position: 8% 4%; }
-    to { background-position: 12% 6%; } 
+    0% { background-position: 0 0; }
+    100% { background-position: 50px 50px; } 
 }
 
 .sidebar-text-area {
