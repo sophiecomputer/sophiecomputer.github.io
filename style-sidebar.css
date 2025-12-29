@@ -36,10 +36,24 @@
     border-right: solid black; 
     border-right-width: thin; 
     background-image: url('media/no-texture.png'); 
-  
-    @media (prefers-reduced-motion: no-preference) {
-      -webkit-animation: marquee 20s infinite linear;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    .sidebar {
+        animation:
+            marquee-fast 1s linear, 
+            marquee-slow 2s ease-out 1s forwards;
     }
+}
+
+@-webkit-keyframes marquee-fast {
+    from { background-position: 0% 0%; }
+    to { background-position: 8% 4%; } 
+}
+
+@-webkit-keyframes marquee-slow {
+    from { background-position: 8% 4%; }
+    to { background-position: 12% 6%; } 
 }
 
 .sidebar-text-area {
@@ -90,11 +104,12 @@
     margin: 0;
     text-align: center;
     font-style: italic;
-} 
+}
 
 @-webkit-keyframes marquee {
     0% { background-position: 0 0; } 
-    100% { background-position: calc(var(--barwidth)*2) var(--barwidth); } 
+    60% { background-position: 10% 10%; } 
+    100% { background-position: 15% 15%; } 
 }
 
 body, html {
@@ -140,6 +155,23 @@ body, html {
           border-left: 1px solid black; 
           border-right: 1px solid black; 
         } 
+    }
+}
+
+.avatar-gif {
+    width: 100%;
+    max-width: 100%;
+    background-image: url("/media/avatar.gif");
+    background-size: contain; 
+    background-repeat: no-repeat;
+    aspect-ratio: 1;
+
+    animation: gif-stop 3s steps(1) forwards;
+}
+
+@keyframes gif-stop {
+    to {
+        background-image: url("/media/avatar.png"); 
     }
 }
 
