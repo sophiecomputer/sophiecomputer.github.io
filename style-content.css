@@ -18,6 +18,7 @@ body, html {
     top: 0; 
     height: 100%;
     padding-bottom: 20px; 
+    cursor: url("/cursor-normal.png"), auto;
 }
 
 .last-updated {
