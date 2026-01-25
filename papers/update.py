@@ -97,7 +97,9 @@ last_updated_text = (
 
 # Get how many papers are remaining.
 papers_by_now, sched = goal()
-papers_read_text = f"I have read {str(papers_by_now + sched)} papers this year"
+papers_read_text = (
+    f"I have read <b>{str(papers_by_now + sched)} papers</b> this year"
+)
 papers_by_now_text = (
     f"exactly on schedule" if sched == 0 else 
     f"{sched} papers ahead of schedule" if sched > 0 else 
@@ -106,9 +108,9 @@ papers_by_now_text = (
 summary_text = (
     "<p>This is where I log the papers I've read this year. My goal for 2026 is "
     "to read 300 papers. By the last time this document was last updated "
-    f"({current_date_time}), {papers_read_text}. I should have read "
-    f"{str(papers_by_now)} papers by this time, meaning I am "
-    f"{papers_by_now_text}.</p>"
+    f"(<b>{current_date_time}</b>), {papers_read_text}. I should have read "
+    f"<b>{str(papers_by_now)} papers</b> by this time, meaning I am "
+    f"<b>{papers_by_now_text}</b>.</p>"
 )
 
 # Generate the calendar.
