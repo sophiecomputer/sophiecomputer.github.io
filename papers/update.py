@@ -17,6 +17,7 @@ cal_script = "/home/sophie/desktop/data/other/documents/sophie/1-Logs/cal.py"
 goal_script = "/home/sophie/desktop/data/other/documents/sophie/1-Logs/goal.py"
 target_file = __file__[:__file__.rfind("/")] + "/index.html"
 out_image = __file__[:__file__.rfind("/")] + "/cal.png"
+thumbnail_file = __file__[:__file__.rfind("/")] + "/thumbnail.png"
 
 assert os.path.exists(paper_log), (
     f"Error: paper log doesn't exist at \"{paper_log}\"."
@@ -33,6 +34,10 @@ assert os.path.exists(target_file), (
 assert os.path.exists(out_image), (
     f"Error: output image file should be overwritten, though it currently "
     f"doesn't exist at \"{out_image}\"."
+)
+assert os.path.exists(thumbnail_file), (
+    f"Error: output thumbnail file should be overwritten, though it currently "
+    f"doesn't exist at \"{thumbnail_file}\"."
 )
 
 sys.path.append(cal_script[:cal_script.rfind("/")])
@@ -187,8 +192,11 @@ def run_cmd(cmd):
     )
 
 os.rename("temp.html", target_file)
+run_cmd(["magick", out_image, "-resize", "1200x627", "-background", "white",
+    "-gravity", "center", "-extent", "1200x627", thumbnail_file])
 run_cmd(["git", "add", target_file])
 run_cmd(["git", "add", out_image]) 
+run_cmd(["git", "add", thumbnail_file]) 
 run_cmd(["git", "commit", "-m", 
     f"(Automated) updated paper log: {current_date_time}"])
 run_cmd(["git", "push"]) 
