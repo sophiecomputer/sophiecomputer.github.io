@@ -10,8 +10,6 @@
   </head>
   <body class="webpage">
     <div class="sidebar">
-      <button id="anim-toggle">Toggle Animations/GIFs</button>
-
       <div class="sidebar-text-area"> 
         <p class="sidebar-text">
           <img src="/media/star-blink.gif", style="height: 1em">
@@ -141,19 +139,6 @@
         
         if (front_part != document.location)
           iframe.data = document.location + '?contentonly';
-      }); 
-
-      // Animation toggle
-      const toggle_button = document.getElementById("anim-toggle");
-      const avatar_gif = document.getElementById("avatar-gif"); 
-      const title_marquee = document.getElementById("title-marquee"); 
-      const body = document.body; 
-      
-      let animations_enabled = true; 
-      toggle_button.addEventListener("click", () => {
-        animations_enabled = !animations_enabled; 
-        body.classList.toggle("no-animations");
-        avatar_gif.src = animations_enabled ? "/media/avatar.gif" : "/media/avatar.png";
       }); 
     </script> 
 
