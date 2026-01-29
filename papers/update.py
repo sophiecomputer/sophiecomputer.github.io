@@ -112,7 +112,7 @@ papers_by_now_text = (
 )
 summary_text = (
     "<p>This is where I log the papers I've read this year. My goal for 2026 is "
-    "to read 300 papers. By the last time this document was last updated "
+    "to read 300 papers. By the time this document was last updated "
     f"(<b>{current_date_time}</b>), {papers_read_text}. I should have read "
     f"<b>{str(papers_by_now)} papers</b> by this time, meaning I am "
     f"<b>{papers_by_now_text}</b>.</p>"
