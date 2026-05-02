@@ -33,7 +33,7 @@ import re
 try: 
     header = next(sys.stdin).strip()
     subheader = next(sys.stdin).strip()
-    markdown = [line.strip() for line in sys.stdin.readlines()]
+    markdown = [line for line in sys.stdin.readlines()] 
 except EOFError: 
     print("Error: not enough lines in input markdown.")  
     sys.exit(1)
@@ -83,35 +83,62 @@ html = """<!DOCTYPE html>
 """ % (header, number, title, subheader) 
 
 # Classify the markdown lines as either h4's, h3's, or paragraphs, and add them
-# to the output. 
+# to the output. While we read code, append it to the code string. 
+code = None 
+reading_code = False 
 for line in markdown:
-    if len(line) == 0: 
-        continue 
+    if len(line.strip()) == 0: 
+        continue
 
-    # Substitute asterisks with italics.
-    while mat := re.match(r".*(\*[^\*]+\*).*", line):
-        text = mat[1][1:-1]
-        line = line[:mat.start(1)] + "<i>" + text + "</i>" + line[mat.end(1):]
+    if not reading_code:
+        if "```" in line:
+            code = "" 
+            reading_code = True
+            continue 
 
-    # Substitute links.
-    while mat := re.match(r".*(\[[^\]]+\])(\([^\)]+\)).*", line): 
-        text = mat[1][1:-1]
-        link = mat[2][1:-1]
-        line = line[:mat.start(1)] + f"<a href=\"{link}\">{text}</a>" \
-            + line[mat.end(2):]
+        line = line.strip() 
 
-    html += "          "
-
-    if line.startswith("###"):
-        line = line[3:].strip()
-        html += "<h4>" + line + "</h4>"
-    elif line.startswith("##"):
-        line = line[2:].strip()
-        html += "<h3>" + line + "</h3>"
-    else:
-        html += "<p>" + line + "</p>"
+        # Substitute asterisks with italics.
+        while mat := re.match(r".*(\*[^\*]+\*).*", line):
+            text = mat[1][1:-1]
+            line = line[:mat.start(1)] + "<i>" + text + "</i>" + line[mat.end(1):]
+        
+        # Substitute backticks with code.
+        while mat := re.match(r".*(`[^`]+`).*", line):
+            text = mat[1][1:-1]
+            line = line[:mat.start(1)] + "<code>" + text + "</code>" + line[mat.end(1):]
     
-    html += "\n"
+        # Substitute links.
+        while mat := re.match(r".*(\[[^\]]+\])(\([^\)]+\)).*", line): 
+            text = mat[1][1:-1]
+            link = mat[2][1:-1]
+            line = line[:mat.start(1)] + f"<a href=\"{link}\">{text}</a>" \
+                + line[mat.end(2):]
+    
+        html += "          "
+    
+        if line.startswith("###"):
+            line = line[3:].strip()
+            html += "<h4>" + line + "</h4>"
+        elif line.startswith("##"):
+            line = line[2:].strip()
+            html += "<h3>" + line + "</h3>"
+        else:
+            html += "<p>" + line + "</p>"
+        
+        html += "\n"
+    
+    else:
+        if "```" in line:   
+            reading_code = False
+            html += (
+                "<div class=\"code-block\"><pre><code>" 
+                + code.rstrip() 
+                + "</code></pre></div>\n"
+            )
+        else:
+            code += line.replace("\t", "    ")  
+
 
 # End with the last bunch of lines.
 html += """

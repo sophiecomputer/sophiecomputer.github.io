@@ -210,3 +210,15 @@ table {
         padding-right: 30px;
     }
 }
+
+.code-block {
+    background-color: #F7F7F7;
+    border: solid black; 
+    border-width: 1px;
+    font-size: 14px; 
+    margin-top: 10px; 
+    padding-top: 5px; 
+    padding-bottom: 5px; 
+    padding-left: 20px; 
+    padding-right: 5px; 
+}

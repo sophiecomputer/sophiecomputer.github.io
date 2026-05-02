@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <meta property='og:title' content='Sophie Computer'/>
+    <meta property='og:image' content='https://sophie.computer/posts/0018/thumbnail.png'/>
+    <meta property='og:description' content='Blog post 0018: "Elegance"'/>
+    <meta property='og:url' content='https://sophie,computer/posts/0018/index.html'/>
+    <meta property='og:image:width' content='1200' />
+    <meta property='og:image:height' content='627' />
+    <meta property="og:type" content='website'/>
+    
+    <title># 0019 [2026-04-21]: Enforcing Custom Instruction Semantics</title>
+    <link href="/style-content.css" rel="stylesheet" type="text/css" media="all">
+  
+  </head>
+  <body>
+    
+    <script> 
+      const query_string = window.location.search; 
+      const url_params = new URLSearchParams(query_string); 
+      if (!url_params.has('contentonly')) {
+        window.location.replace("/index.html?redirect=/posts/0019/index.html");
+      }
+    </script> 
+
+    <div style="width: 100%; height: 100%;">
+      <div class="main-content">
+        <div class="main-section">
+          
+          <h1>Enforcing Custom Instruction Semantics</h1>
+          <h2>May 2, 2026 | 2:38 PM ET</h2>
+          
+          <center style="padding-top: 10px;">
+            <img src="thumbnail.png" style="width: 80%; height: auto;" class="center" border="5">
+          </center> 
+
+          <p>This blog post talks about a specific technical problem I've solved in a research project I submitted to IEEE MICRO 2026 a few weeks ago.</p>
+          <p>The project I've been working on the last few months was to create a new accelerator and add it to a CPU, to speed up a specific kind of procedure visible in some kinds of programs. This involved learning how to use gem5 and creating a new set of instructions that are linked to custom functional units with the behavior I want. For example, there would be an instruction to move data into the accelerator, an instruction to launch the accelerator, an instruction to be notified when the accelerator was complete, and an instruction to read results back from the accelerator into the register file. Furthermore, the accelerator could be parallelized internally like a systolic array, which allowed multiple independent launches of the device to be overlaid together. The ISA ended up looking something like the below (with each function being a wrapper around a RISC-V instruction):</p>
+<div class="code-block"><pre><code>ACCIN(r_bufidx, r_data) 
+ACCOUT(r_bufidx, r_data)
+ACCLAUNCH()
+ACCPOLL()</code></pre></div>
+          <p>The code itself may have the following basic form, for an elementwise addition (the accelerator has a limited buffer size, so it would process things in chunks of 128-elements each):</p>
+<div class="code-block"><pre><code>void add(float* vec, unsigned n) {
+    for (unsigned i = 0; i < n; i++)
+        ACCIN(i, vec[i]);  // Input into accelerator.
+    ACCLAUNCH();  // Launch accelerator. 
+    ACCPOLL();    // Wait until it's done.
+    for (unsigned i = 0; i < n; i++) 
+        ACCOUT(i, vec[i]);  // Output from accelerator.
+}
+int main() {
+    unsigned n = 512;
+    float *vec = get_data(n);  // Some data-getting method.
+    for (unsigned i = 0; i < n; i += 128)  // Process chunks.
+        add(vec + i, 128); 
+}</code></pre></div>
+          <p>A problem of this was that the ISA we were extending, RISC-V, does not have the ability to express many of these requirements. There is no concept of a separate or scratchpad-like memory distinct from the register file, which means naive implementations of it could lead to the compiled program not aligning with my expectations (e.g., the compiler may reorder instructions that it perceives as not having data dependencies, even though semantically they <i>do</i> have data dependencies, because the compiler does not know that an "accelerator input" and "accelerator launch" instruction have natural dependencies between them). Furthermore, loop unrolling was a problem since the accelerator may decide to take two separate <code>ACCLAUNCH</code> iterations and overlap them in a way I didn't intend. While the above code represented my "intention", the compiler may <i><i>incorrectly</i></i> translate it into the below:</p>
+<div class="code-block"><pre><code>int main() {
+    unsigned n = 512;
+    float *vec = get_data(n);
+    for (unsigned i = 0; i < n; i++)
+        ACCIN(i, vec[i]);
+    for (unsigned i = 0; i < n; i++) 
+        ACCOUT(i, vec[i]);
+    ACCPOLL(); 
+    ACCPOLL(); 
+    ACCPOLL(); 
+    ACCPOLL(); 
+    ACCLAUNCH(); 
+    ACCLAUNCH(); 
+    ACCLAUNCH(); 
+    ACCLAUNCH(); 
+}</code></pre></div>
+          <p>The <i>best solution</i> to this problem would be to fully convey the semantics of my instructions to RISC-V GCC compiler. Ignoring the fact the compiler is a million lines of code long and takes 20 minutes to re-compile each time, the same problem would befall gem5 since the out-of-order execution mode may schedule instructions in parallel that are not meant to be scheduled in parallel (e.g., in my design, all <code>ACCIN</code> instructions must complete before <code>ACCLAUNCH</code> begins). Properly modifying all tools involved would be intractable for this project, considering the extremely short deadline imposed on us.</p>
+          <p>A much quicker solution is to create an <i>approximate implementation</i> while keeping the "real design" the above. In the paper, we would say the above is our actual design, since in the <i>real world</i> we would have actually modified RISC-V and the processor with our intended semantics, while our internal implementation makes a few approximations that remains accurate at the risk of being a bit pessimistic in performance.</p>
+          <p>I did this in three ways. First, I peppered the code with different <code>#pragma</code> compiler hints to tell the compiler not to unroll certain loops or inline certain functions. There is no guarantee this would actually be obeyed by the compiler, but it's a nice safeguard since it's low-effort. Second, I would modify the RISC-V GCC compiler to inform it that the <code>ACCPOLL</code> instruction would have an expected latency of 1000 cycles. This would automatically prevent it from unrolling loops since there would be no benefit. Finally, I would change the ISA to pass <i>tokens</i> between each instruction to force an instruction ordering, and to force one instruction to complete before another is able to begin. The ISA would be transformed to the following:</p>
+<div class="code-block"><pre><code>ACCIN(r_bufidx, r_data) -> r_token 
+ACCOUT(r_token, r_bufidx) -> r_data 
+ACCLAUNCH(r_token) -> r_token
+ACCPOLL(r_token) -> r_token</code></pre></div>
+          <p>Each instruction would <i>produce</i> and/or <i>consume</i> tokens, where a "token" is just arbitrary data. For example, <code>ACCOUT</code> would be an R-type instruction which would input two registers (<code>r_token</code> and <code>r_bufidx</code>) and output one register (<code>r_data</code>, which is not actually fetched from any kind of scratchpad or anything; each R-type instruction is treated as an arithmetic instruction, so you can substitute each of these with <code>SUB</code> for simple substitution). The code would be transformed into the below:</p>
+<div class="code-block"><pre><code>void add(float* vec, unsigned n) {
+    // Arbitrary token.
+    uint32_t token = 0;
+    for (unsigned i = 0; i < n; i++)
+        token -= ACCIN(i, vec[i]);  // Input into accelerator.
+    token -= ACCLAUNCH(token);  // Launch accelerator. 
+    token -= ACCPOLL(token);    // Wait until it's done.
+    for (unsigned i = 0; i < n; i++) 
+        vec[i] = ACCOUT(i, token);  // Output from accelerator.
+}
+int main() {
+    unsigned n = 512;
+    float *vec = get_data(n);  // Some data-getting method.
+    for (unsigned i = 0; i < n; i += 128)  // Process chunks.
+        add(vec + i, 128); 
+}</code></pre></div>
+          <p>The tokens force serialization: integer subtraction is not commutative, meaning you cannot reorder operands without changing the results, and the strict ordering of tokens above means for example that all <code>ACCIN</code> instructions must complete before the first <code>ACCLAUNCH</code> can begin, preventing the out-of-order scheduler from overlaying them at all.</p>
+          <p>The result of these endeavors is that our program obeys the original semantics we wanted for our accelerator, while being no faster than the ideal design. That second part is important because we don't want our approximate implementation to be <i>faster</i> than what we actually describe in the paper, because future researchers might then have a hard time replicating our results. If anything, the above will be a lot <i>slower</i> than a real implementation since we're forcing the serialization of a lot of things that should not need to be serialized.</p>
+          <p>In the next blog post, I'll talk about another fancy code change I did to allow our accelerator to have multiple independent in-flight invocations running in parallel, fully utilizing the systolic-like behavior of the device.</p>
+          <p>-Sophie</p>
+          <p>Email: <code>sophie.computer.100@gmail.com</code></p>
+          <p>Discord: <code>@sophiecomputer</code></p>
+          <p>Bluesky: <a href="https://bsky.app/profile/sophiecomputer.bsky.social">sophiecomputer.bsky.social</a></p>
+
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
+

@@ -61,7 +61,7 @@ with open(paper_log, "r") as f:
             
             data.append((date, title, link, other))
         
-        elif len(line) > 0 and line[0].isnumeric():
+        elif len(line) > 0 and line[0].isnumeric() and "None" not in line:
             warnings.append(line)
 
 for line in warnings:
