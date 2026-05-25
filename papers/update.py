@@ -1,9 +1,11 @@
 """
 This script automatically updates the website with a new calendar image, 
-counters, and log of papers read.
+counters, and log of papers read. Note that this script itself is comitted to 
+the website, too. 
 """
 
 
+import argparse
 import sys 
 import os 
 import re 
@@ -11,13 +13,23 @@ import subprocess
 from datetime import datetime, timezone 
 
 
+cwd = __file__[:__file__.rindex("/")+1].rstrip("/")
+basedir = f"{cwd}/.."
+assert os.path.exists(f"{basedir}/.git"), f"\"{basedir}/.git\" does not exist."
+
+parser = argparse.ArgumentParser()
+parser.add_argument("doc")
+args = parser.parse_args()
+assert os.path.exists(args.doc), f"Error: \"{args.doc}\" does not exist."
+assert args.doc.endswith(".md"), f"Error: \"{args.doc}\" incorrect file type." 
+
 # Confirm everything exists.
-paper_log = "/home/sophie/desktop/data/other/documents/sophie/1-Logs/Papers.md"
-cal_script = "/home/sophie/desktop/data/other/documents/sophie/1-Logs/cal.py"
-goal_script = "/home/sophie/desktop/data/other/documents/sophie/1-Logs/goal.py"
-target_file = __file__[:__file__.rfind("/")] + "/index.html"
-out_image = __file__[:__file__.rfind("/")] + "/cal.png"
-thumbnail_file = __file__[:__file__.rfind("/")] + "/thumbnail.png"
+paper_log = args.doc
+cal_script = f"{basedir}/stats/cal.py"
+goal_script = f"{basedir}/papers/goal.py"
+target_file = f"{basedir}/papers/index.html"
+out_image = f"{basedir}/papers/cal.png"
+thumbnail_file = f"{basedir}/papers/thumbnail.png"
 
 assert os.path.exists(paper_log), (
     f"Error: paper log doesn't exist at \"{paper_log}\"."
@@ -47,7 +59,7 @@ from cal import plot_calendar
 
 # Read the log and get the necessary info for each paper.
 paper_reg = re.compile(r"(\d+/\d+/\d+), \"(.+),?\" (.+) \[link\]\((.+)\)")
-almost_reg = re.compile(r"\d")
+almost_reg = re.compile(r"\d+(/|-)")
 warnings = [] 
 data = [] 
 with open(paper_log, "r") as f:
@@ -61,7 +73,7 @@ with open(paper_log, "r") as f:
             
             data.append((date, title, link, other))
         
-        elif len(line) > 0 and line[0].isnumeric() and "None" not in line:
+        elif almost_reg.match(line) and "None" not in line:
             warnings.append(line)
 
 for line in warnings:
@@ -101,7 +113,7 @@ last_updated_text = (
 )
 
 # Get how many papers are remaining.
-papers_by_now, sched = goal()
+papers_by_now, sched = goal(args.doc)
 papers_read_text = (
     f"I have read <b>{str(papers_by_now + sched)} papers</b> this year"
 )
@@ -121,6 +133,7 @@ summary_text = (
 # Generate the calendar.
 plot_calendar(
     title="Papers", 
+    yearly=True, 
     firstday=(2025, 12, 7), 
     fname=paper_log, 
     out_fname=out_image, 

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    
+    <title>SOPHIE COMPUTER: Stats</title>
+    <link rel="stylesheet" href="/style-content.css">
+    <link rel="icon" type="image/x-icon" href="media/star-blink.gif">
+  </head>
+  <body class="webpage">
+    <script> 
+      const query_string = window.location.search; 
+      const url_params = new URLSearchParams(query_string); 
+      if (!url_params.has('contentonly')) {
+        window.location.replace("/index.html?redirect=/stats/index.html");
+      }
+    </script> 
+    <div style="width: 100%; height: 100%;">
+      <div class="main-content">
+        <div class="main-section">
+          <p>Here are some stats I'm collecting.</p>
+          <p><img src="papers.png" style="width: 100%;" alt="Yearly calendar of the times I've read papers."></p>
+          <p><img src="anime.png" style="width: 100%;" alt="Yearly calendar of the times I've watched anime."></p>
+          <p><img src="clean.png" style="width: 100%;" alt="Yearly calendar of the times I've cleaned things."></p>
+          <p><img src="fruit.png" style="width: 100%;" alt="Yearly calendar of the times I've eaten fruit."></p>
+          <p><img src="vegetable.png" style="width: 100%;" alt="Yearly calendar of the times I've eaten vegetables."></p>
+          <p><img src="workout.png" style="width: 100%;" alt="Yearly calendar of the times I've worked out."></p>
+        </div> 
+      </div>
+        
+      <div class="last-updated">
+        <p class="last-updated-text">
+          Last updated: May 25, 2026 at 21:39 UTC.
+        </p>
+      </div>
+    </div>
+  </body>
+</html>
+
