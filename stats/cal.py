@@ -119,7 +119,7 @@ def plot_calendar(
     specifier.
     """
     
-    assert value in ("none", "counter", "anime", "mood") 
+    assert value in ("none", "counter", "anime", "mood", "hours") 
     first_date = datetime.date(
         year=int(firstday[0]),
         month=int(firstday[1]),
@@ -144,6 +144,9 @@ def plot_calendar(
     elif value == "mood":
         reg = r"([\*\s#]*)(\d+)\/(\d+)\/(\d+) (\d+)()"
         almost_reg = r".+(\d+)\/(\d+)\/(\d+).+"
+    elif value == "hours":
+        reg = r"([\*\s#]*)(\d+)\/(\d+)\/(\d+) (\d+\.?\d*)()"
+        almost_reg = r".+(\d+)\/(\d+)\/(\d+).*"
     else:
         raise ValueError(f"Unknown value type: \"{value}\"")
 
@@ -171,7 +174,12 @@ def plot_calendar(
             raw_cells[(month, day, year)].append((key, extra_text))
 
     # Get the max value for the gradient.
-    max_values = len(max(raw_cells.values(), key=lambda x: len(x)))
+    if value in ("counter", "anime"):
+        max_values = len(max(raw_cells.values(), key=lambda x: len(x)))
+    elif value == "hours":
+        max_values = (
+            float(max(raw_cells.values(), key=lambda x: float(x[0][0]))[0][0])
+        )
 
     # Create the formatted dictionary. 
     cells = {} 
@@ -183,7 +191,9 @@ def plot_calendar(
             gradient = math.log(len(values) + 1) / math.log(max_values + 1)
         elif value == "mood":
             gradient = (int(values[0][0]) - 1) / 5.0
-        
+        elif value == "hours": 
+            gradient = float(values[0][0]) / max_values
+
         # Set text.
         if value == "none":
             text = "" 
@@ -195,9 +205,9 @@ def plot_calendar(
             for idx, (key, extra) in enumerate(v for v in values[:ilen]):
                 text = key if len(key) <= 5 else key[:5] + "..."
                 text += "\n" if idx < ilen - 1 else "" 
-        elif value == "mood":
+        elif value in ("mood", "hours"):
             text = str(values[0][0])
-        
+
         cells[date] = (gradient, text)
     
     # Get the current year and month.
@@ -368,7 +378,7 @@ def plot_calendar(
     
             # Add date number to top-left
             ax.text(
-                x0 + 0.005, y1 - 0.01,  # near top-left corner
+                x0 + 0.002, y1 - 0.01,  # near top-left corner
                 str(i + 1),
                 ha="left",
                 va="top",
@@ -438,7 +448,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--value", 
         help="What to put in the calendar slots",
-        choices=["none", "counter", "anime", "mood"], 
+        choices=["none", "counter", "anime", "mood", "hours"], 
         default="none"
     )
     parser.add_argument(
