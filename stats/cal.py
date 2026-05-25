@@ -119,7 +119,7 @@ def plot_calendar(
     specifier.
     """
     
-    assert value in ("none", "counter", "anime") 
+    assert value in ("none", "counter", "anime", "mood") 
     first_date = datetime.date(
         year=int(firstday[0]),
         month=int(firstday[1]),
@@ -140,6 +140,9 @@ def plot_calendar(
         almost_reg = r".+(\d+)\/(\d+)\/(\d+)"
     elif value == "anime": 
         reg = r"([\*\s#]*)(\d+)\/(\d+)\/(\d+) (.+) ([^\s]+)"
+        almost_reg = r".+(\d+)\/(\d+)\/(\d+).+"
+    elif value == "mood":
+        reg = r"([\*\s#]*)(\d+)\/(\d+)\/(\d+) (\d+)()"
         almost_reg = r".+(\d+)\/(\d+)\/(\d+).+"
     else:
         raise ValueError(f"Unknown value type: \"{value}\"")
@@ -173,18 +176,28 @@ def plot_calendar(
     # Create the formatted dictionary. 
     cells = {} 
     for date, values in raw_cells.items():
-        gradient = (
-            1.0 if value == "none" else 
-            math.log(len(values) + 1) / math.log(max_values + 1)
-        )
-        if yearly: 
-            text = str(len(values)) if value != "none" else "" 
-        else:
+        # Set gradient. 
+        if value == "none":
+            gradient = 1.0
+        elif value in ("counter", "anime"):
+            gradient = math.log(len(values) + 1) / math.log(max_values + 1)
+        elif value == "mood":
+            gradient = (int(values[0][0]) - 1) / 5.0
+        
+        # Set text.
+        if value == "none":
+            text = "" 
+        elif value == "counter" or (value == "anime" and yearly):
+            text = str(len(values))
+        elif value == "anime": 
             text = ""
             ilen = min(2, len(values))
             for idx, (key, extra) in enumerate(v for v in values[:ilen]):
                 text = key if len(key) <= 5 else key[:5] + "..."
                 text += "\n" if idx < ilen - 1 else "" 
+        elif value == "mood":
+            text = str(values[0][0])
+        
         cells[date] = (gradient, text)
     
     # Get the current year and month.
@@ -425,7 +438,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--value", 
         help="What to put in the calendar slots",
-        choices=["none", "counter", "anime"], 
+        choices=["none", "counter", "anime", "mood"], 
         default="none"
     )
     parser.add_argument(
@@ -436,7 +449,8 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
     
-    args.out_fname = f"{base}/{args.out_fname}" 
+    if not args.out_fname.startswith("/"):
+        args.out_fname = f"{base}/{args.out_fname}" 
     if not os.path.exists(args.data_fname):
         args.data_fname = f"{base}/{args.data_fname}" 
 
