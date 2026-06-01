@@ -420,7 +420,7 @@ def plot_calendar(
 
     fig.subplots_adjust(top=0.85)
     # ax.set_title(("a" * 200 + "\n") * 5, pad=50) 
-    ax.set_title(title, pad=90, fontsize=24) 
+    ax.set_title(title, pad=(90 if yearly else 2), fontsize=24) 
     fig.tight_layout(pad=0.1)
     plt.savefig(out_fname, dpi=400, bbox_inches="tight") 
     print(f"Figure saved to \"{out_fname}\"")
