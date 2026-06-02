@@ -203,7 +203,7 @@ def plot_calendar(
             text = ""
             ilen = min(2, len(values))
             for idx, (key, extra) in enumerate(v for v in values[:ilen]):
-                text = key if len(key) <= 5 else key[:5] + "..."
+                text += key if len(key) <= 5 else key[:5] + "..."
                 text += "\n" if idx < ilen - 1 else "" 
         elif value in ("mood", "hours"):
             text = str(values[0][0])
@@ -346,7 +346,8 @@ def plot_calendar(
         cellText=cell_values,
         cellColours=colors,
         loc="center",
-        cellLoc="center"
+        cellLoc="center",
+        fontsize=(10 if yearly else 16)
     )
     
     # Adjust table style
