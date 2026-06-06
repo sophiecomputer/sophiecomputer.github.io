@@ -64,6 +64,9 @@ warnings = []
 data = [] 
 with open(paper_log, "r") as f:
     for line in f:
+        if "none" in line.lower():
+            continue
+
         line = line.strip() 
         if mat := paper_reg.match(line):
             date = mat[1] 
