@@ -189,7 +189,7 @@
           // --- Read comments ---
           // Listen to all users' entries by watching the whole comments node.
           console.log("About to read entries");
-          onValue(ref(database, `comments/${currentUserId}/entries`), (snapshot) => {
+          onValue(ref(database, `comments`), (snapshot) => {
             console.log("Reading entries");
             messagesDisplay.innerHTML = '';
         
