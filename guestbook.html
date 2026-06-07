@@ -75,10 +75,11 @@
     
       // --- Auth ---
       let currentUserId = null;
+      submitButton.disabled = true;
       onAuthStateChanged(auth, async (user) => {
         if (user) {
+          try {
           currentUserId = user.uid;
-          submitButton.disabled = false;
         
           const metadataRef = ref(database, `user_metadata/${currentUserId}`); 
           const snap = await get(metadataRef); 
@@ -90,7 +91,10 @@
                 commentPeriodStart: Date.now()
               }
             }); 
-          } 
+          }
+          console.log("User authenticated"); 
+          submitButton.disabled = false;
+          } catch (error) { console.log("SOPHIESOPHIESOPHIE"); console.log(error); } 
         } else {
           currentUserId = null;
           submitButton.disabled = true;
