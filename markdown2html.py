@@ -46,9 +46,13 @@ def get_args():
     args.add_argument("--wikilink-root", default=None,
         help=("The root directory of where Wiki-style links (i.e., "
               "\"![[foo]]\" should search content for)"))
-    args.add_argument("--overwrite", action="store_true", 
+    args.add_argument("--force", action="store_true", 
         help=("If supplied, overwrites the target directory if it exists "
               "without asking user for permission"))
+    args.add_argument("--out-name", default="index.html", 
+        help="The name of the output index file (default = index.html)")
+    args.add_argument("--no-delete", action="store_true", 
+        help="If set, does not delete outputpath at beginning") 
 
     return args.parse_args() 
 
@@ -103,7 +107,7 @@ def blog_format_start(title: str, relative_index: str):
 
     assert (
         relative_index.startswith("/") and 
-        relative_index.endswith("index.html")
+        relative_index.endswith(".html")
     ), relative_index
 
     return f"""
@@ -153,26 +157,36 @@ def blog_format_end():
 def convert(
     input_path: str, 
     output_path: str, 
+    out_name: str, 
     title: str, 
     force_overwrite: bool,
     fmt: str,
     domain: str,
-    wikilink_root: Optional[str] 
+    wikilink_root: Optional[str],  
+    no_delete: bool
 ) -> None:
     """
     Converts the input path (a markdown file) to an HTML file at 
-    "{output_path}/index.html". If the markdown file contains any media, then 
+    "{output_path}/{out_name}". If the markdown file contains any media, then 
     copies that media to "{output_path}/media/*".
 
     We can specify a target file format. The format can be either "plain" or 
     "blog".
 
-    "domain" is the domain of the website (i.e., "https://example.com"). 
+    "domain" is the domain of the website (i.e., "https://example.com").
+
+    "wikilink_root" is where we search for Wiki-style link content.
+
+    If "no_delete" is set, we do not delete things before we begin. 
     """
     
     assert fmt in ("plain", "blog"), fmt 
-
-    if os.path.exists(output_path): 
+    
+    # Find where the ".git" root is. We're assuming this blog is represented as
+    # a GitHub Pages. 
+    git_root = os.path.abspath(find_git_root(os.path.abspath(output_path)))
+    
+    if not no_delete and os.path.exists(output_path): 
         if not force_overwrite: 
             option = input(
                 f"The path \"{output_path}\" already exists. Delete it? (y/N): "
@@ -188,7 +202,7 @@ def convert(
     
     # Make the output directory. 
     os.makedirs(output_path)
-    output_fname = f"{output_path}/index.html" 
+    output_fname = f"{output_path}/{out_name}" 
 
     # The file is created in a streaming fashion.
     with open(input_path, "r") as f_in: 
@@ -198,17 +212,15 @@ def convert(
                 f_out.write("<html>")
             elif fmt == "blog":
                 # The user supplied an "output_path" describing where to write 
-                # the file. Turn this into an absolute path, and find where the
-                # ".git" root is. We're assuming this blog is represented as a
-                # GitHub Pages.
+                # the file. Turn this into an absolute path. 
                 output_path = os.path.abspath(output_path)
-                root = find_git_root(os.path.abspath(output_path))
-                rel_path = output_path[len(root):] + "/index.html"
+                rel_path = output_path[len(git_root):] + f"/{out_name}"
                 f_out.write(blog_format_start(title, rel_path))
             else:
                 raise ValueError(f"Unknown format \"{fmt}\"") 
 
             # Some markdown elements extend multiple lines. For example:
+            #   - comments ("comment") 
             #   - code blocks ("code_block")
             #   - bulleted lists ("bullet_list") 
             #   - numbered lists ("number_list") 
@@ -227,6 +239,19 @@ def convert(
                 # do *not* emit this as a new paragraph if the line is anything
                 # multiline or if it's a header. 
                 is_paragraph = True
+                
+                # Substitutes horizontal lines.
+                if line == "- - -":
+                    line = "<hr class=\"divider\">"
+
+                # Match comments. 
+                if line == "%%": 
+                    assert multiline == "comment" or multiline is None
+                    if multiline is None:
+                        multiline = "comment"
+                    else:
+                        multiline = None
+                        continue  # Don't emit end of comment 
 
                 # Match code blocks.
                 if "```" in line:
@@ -240,13 +265,12 @@ def convert(
                         # Emit the end of the code block.
                         f_out.write("</code></pre></div>")
                  
-                # The above may have made the line contain no text. Ignore empty 
-                # lines. 
-                if len(line) == 0:
+                # Ignore empty lines and don't emit comments. 
+                if len(line) == 0 or multiline == "comment":
                     continue
 
                 # Match bulleted lists. 
-                if line.startswith("* "):
+                if line.startswith("* ") or line.startswith("- "):
                     assert multiline == "bullet_list" or multiline is None
                     if multiline is None:
                         # Emit the beginning of the bullet list. 
@@ -342,10 +366,6 @@ def convert(
                         + "class=\"center\"></center>"
                     )
 
-                # Substitutes horizontal lines.
-                if line == "- - -":
-                    line = "<hr class=\"divider\">"
-
                 # Replace inline markdown elements in the line with their HTML
                 # equivalents. Note that markdown elements can be repeated on 
                 # the same line (i.e., "hello *sophie* super *computer*" 
@@ -391,19 +411,43 @@ def convert(
                     )
 
                 # Substitute links.
-                while mat := re.search(r"(\[[^\]]+\])\(([^\)]+)\)", line): 
+                pattern = (
+                    r"\[((?:[^\[\]\\]|\\.|\[(?:[^\[\]\\]|\\.)*\])*)\]"
+                    r"\(((?:[^()\\]|\\.|\((?:[^()\\]|\\.)*\))*)\)"
+                )
+                while mat := re.search(pattern, line): 
                     link = mat[2] 
                     text = mat[1] 
                     
-                    # Open a new tab if the target URL is not within our own 
-                    # website.
-                    target = "target=\"_blank\"" if domain not in link else ""
+                    # If this is in "blog" format, and if this is not a URL, 
+                    # then change the content; otherwise, open in a new tab.
+                    if (
+                        fmt == "blog" and not (
+                            link.startswith("http://") or 
+                            link.startswith("https://")
+                        )
+                    ):
+                        # Assuming this is a link relative to the root of the 
+                        # website. Assert we can actually find it.
+                        link = "/" + link.lstrip("/")
+                        web_path = git_root + link
+                        assert os.path.exists(web_path), web_path
+                        assert link.endswith(".html"), link 
 
-                    line = (
-                        line[:mat.start()]
-                        + f"<a href=\"{link}\" {target}>{text}</a>"
-                        + line[mat.end():]
-                    )
+                        line = (
+                            line[:mat.start()]
+                            + f"<a href=\"{link}?contentonly\" "
+                            + f"onclick=\"return window.top.change_me({link}, "
+                            + "false);\">"
+                            + text
+                            + "</a>"
+                        )
+                    else:
+                        line = (
+                            line[:mat.start()]
+                            + f"<a href=\"{link}\" target=\"_blank\">{text}</a>"
+                            + line[mat.end():]
+                        )
                 
                 # Next, modify markdown elements that change the behavior of the
                 # entire line. These include bullet/number lists and headers. 
@@ -450,10 +494,12 @@ if __name__ == "__main__":
     args = get_args() 
     convert(
         input_path=args.inputpath, 
-        output_path=args.outputpath, 
+        output_path=args.outputpath,
+        out_name=args.out_name, 
         title=args.title, 
-        force_overwrite=args.overwrite, 
+        force_overwrite=args.force, 
         fmt=args.fmt,
         domain=args.webdomain,
-        wikilink_root=args.wikilink_root
+        wikilink_root=args.wikilink_root, 
+        no_delete=args.no_delete 
     )
