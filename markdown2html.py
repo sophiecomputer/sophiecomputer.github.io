@@ -201,7 +201,8 @@ def convert(
         shutil.rmtree(output_path)
     
     # Make the output directory. 
-    os.makedirs(output_path)
+    if not os.path.exists(output_path):
+        os.makedirs(output_path)
     output_fname = f"{output_path}/{out_name}" 
 
     # The file is created in a streaming fashion.
