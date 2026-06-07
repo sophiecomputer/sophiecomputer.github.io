@@ -76,139 +76,148 @@
       // --- Auth ---
       let currentUserId = null;
       submitButton.disabled = true;
+      let onlyOnce = true; 
       onAuthStateChanged(auth, async (user) => {
         if (user) {
-          try {
           currentUserId = user.uid;
-        
-          const metadataRef = ref(database, `user_metadata/${currentUserId}`); 
-          const snap = await get(metadataRef); 
-          if (!snap.exists()) {
-            await update(ref(database), {
-              [`user_metadata/${currentUserId}`]: {
-                lastCommentTimestamp: 0, 
-                commentCount: 0, 
-                commentPeriodStart: Date.now()
-              }
-            }); 
+          
+          try { 
+            const metadataRef = ref(database, `user_metadata/${currentUserId}`); 
+            const snap = await get(metadataRef); 
+            if (!snap.exists()) {
+              await update(ref(database), {
+                [`user_metadata/${currentUserId}`]: {
+                  lastCommentTimestamp: 0, 
+                  commentCount: 0, 
+                  commentPeriodStart: Date.now()
+                }
+              }); 
+            }
+          } catch (error) {
+            console.error("User could not authenticate; returning.");
+            return 
           }
-          console.log("User authenticated"); 
+
           submitButton.disabled = false;
-          } catch (error) { console.log("SOPHIESOPHIESOPHIE"); console.log(error); } 
+          console.log("User authenticated! " + currentUserId); 
+
+          if (!onlyOnce)
+            return;
+          onlyOnce = false;
+      
+          // --- Submit ---
+          submitButton.addEventListener("click", async () => {
+            if (!currentUserId) return;
+        
+            const nameText = nameInput.value.trim();
+            const messageText = messageInput.value.trim();
+        
+            if (!nameText) { alert("Please enter a name!"); return; }
+            if (!messageText) { alert("Please enter a message!"); return; }
+        
+            submitButton.disabled = true;
+        
+            try {
+              const metadataRef = ref(database, `user_metadata/${currentUserId}`);
+              const metadataSnap = await get(metadataRef);
+              const now = Date.now();
+        
+              // Check rate limit and period client-side before attempting write,
+              // so we can show a friendly message. The server enforces this too.
+              if (metadataSnap.exists()) {
+                const { lastCommentTimestamp, commentCount, commentPeriodStart } = metadataSnap.val();
+                const periodExpired = (now - commentPeriodStart) > 604800000; // 7 days
+        
+                if (!periodExpired) {
+                  if ((now - lastCommentTimestamp) < 3600000) { // 1 hour
+                    const minutesLeft = Math.ceil((3600000 - (now - lastCommentTimestamp)) / 60000);
+                    alert(`Please wait ${minutesLeft} more minute(s) before commenting again.`);
+                    submitButton.disabled = false;
+                    return;
+                  }
+                  if (commentCount >= 10) {
+                    const daysLeft = Math.ceil((604800000 - (now - commentPeriodStart)) / 86400000);
+                    alert(`You've reached the comment limit for this week. Resets in ${daysLeft} day(s).`);
+                    submitButton.disabled = false;
+                    return;
+                  }
+                }
+              }
+        
+              // Build the new comment entry.
+              const newCommentRef = push(ref(database, `comments/${currentUserId}/entries`));
+              const newCommentKey = newCommentRef.key;
+        
+              const isFirstComment = !metadataSnap.exists();
+              const existingData = metadataSnap.exists() ? metadataSnap.val() : {};
+              const periodExpired = metadataSnap.exists() && (now - existingData.commentPeriodStart) > 604800000;
+        
+              const newCount = (!metadataSnap.exists() || periodExpired) ? 1 : existingData.commentCount + 1;
+              const newPeriodStart = (!metadataSnap.exists() || periodExpired) ? now : existingData.commentPeriodStart;
+        
+              const updates = {
+                [`comments/${currentUserId}/entries/${newCommentKey}`]: {
+                  text: messageText,
+                  name: nameText,
+                  timestamp: now,
+                  userId: currentUserId
+                },
+                [`user_metadata/${currentUserId}`]: {
+                  lastCommentTimestamp: now,
+                  commentCount: newCount,
+                  commentPeriodStart: newPeriodStart
+                }
+              };
+        
+              await update(ref(database), updates);
+        
+              nameInput.value = "";
+              messageInput.value = "";
+              console.log("Submitted comment.");
+            } catch (error) {
+              if (error.code === "PERMISSION_DENIED") {
+                alert("Comment rejected by the server. You may be rate-limited.");
+              } else {
+                alert("Error submitting comment.");
+              }
+              console.error(error);
+            } finally {
+              submitButton.disabled = false;
+            }
+          });
+        
+          // --- Read comments ---
+          // Listen to all users' entries by watching the whole comments node.
+          onValue(ref(database, "comments"), (snapshot) => {
+            messagesDisplay.innerHTML = '';
+        
+            if (!snapshot.exists()) {
+              messagesDisplay.textContent = "No messages yet!";
+              return;
+            }
+        
+            const comments = [];
+            snapshot.forEach((userSnapshot) => {
+              userSnapshot.child("entries").forEach((entrySnapshot) => {
+                comments.push(entrySnapshot.val());
+              });
+            });
+        
+            comments.sort((a, b) => b.timestamp - a.timestamp);
+        
+            comments.forEach((comment) => {
+              const p = document.createElement("p");
+              p.textContent = `${comment.name}: ${comment.text}`;
+              messagesDisplay.appendChild(p);
+            });
+          }, (error) => {
+            console.error("Error fetching messages:", error);
+          });
         } else {
           currentUserId = null;
           submitButton.disabled = true;
           signInAnonymously(auth);
         }
-      });
-    
-      // --- Submit ---
-      submitButton.addEventListener("click", async () => {
-        if (!currentUserId) return;
-    
-        const nameText = nameInput.value.trim();
-        const messageText = messageInput.value.trim();
-    
-        if (!nameText) { alert("Please enter a name!"); return; }
-        if (!messageText) { alert("Please enter a message!"); return; }
-    
-        submitButton.disabled = true;
-    
-        try {
-          const metadataRef = ref(database, `user_metadata/${currentUserId}`);
-          const metadataSnap = await get(metadataRef);
-          const now = Date.now();
-    
-          // Check rate limit and period client-side before attempting write,
-          // so we can show a friendly message. The server enforces this too.
-          if (metadataSnap.exists()) {
-            const { lastCommentTimestamp, commentCount, commentPeriodStart } = metadataSnap.val();
-            const periodExpired = (now - commentPeriodStart) > 604800000; // 7 days
-    
-            if (!periodExpired) {
-              if ((now - lastCommentTimestamp) < 3600000) { // 1 hour
-                const minutesLeft = Math.ceil((3600000 - (now - lastCommentTimestamp)) / 60000);
-                alert(`Please wait ${minutesLeft} more minute(s) before commenting again.`);
-                submitButton.disabled = false;
-                return;
-              }
-              if (commentCount >= 10) {
-                const daysLeft = Math.ceil((604800000 - (now - commentPeriodStart)) / 86400000);
-                alert(`You've reached the comment limit for this week. Resets in ${daysLeft} day(s).`);
-                submitButton.disabled = false;
-                return;
-              }
-            }
-          }
-    
-          // Build the new comment entry.
-          const newCommentRef = push(ref(database, `comments/${currentUserId}/entries`));
-          const newCommentKey = newCommentRef.key;
-    
-          const isFirstComment = !metadataSnap.exists();
-          const existingData = metadataSnap.exists() ? metadataSnap.val() : {};
-          const periodExpired = metadataSnap.exists() && (now - existingData.commentPeriodStart) > 604800000;
-    
-          const newCount = (!metadataSnap.exists() || periodExpired) ? 1 : existingData.commentCount + 1;
-          const newPeriodStart = (!metadataSnap.exists() || periodExpired) ? now : existingData.commentPeriodStart;
-    
-          const updates = {
-            [`comments/${currentUserId}/entries/${newCommentKey}`]: {
-              text: messageText,
-              name: nameText,
-              timestamp: now,
-              userId: currentUserId
-            },
-            [`user_metadata/${currentUserId}`]: {
-              lastCommentTimestamp: now,
-              commentCount: newCount,
-              commentPeriodStart: newPeriodStart
-            }
-          };
-    
-          await update(ref(database), updates);
-    
-          nameInput.value = "";
-          messageInput.value = "";
-          console.log("Submitted comment.");
-        } catch (error) {
-          if (error.code === "PERMISSION_DENIED") {
-            alert("Comment rejected by the server. You may be rate-limited.");
-          } else {
-            alert("Error submitting comment.");
-          }
-          console.error(error);
-        } finally {
-          submitButton.disabled = false;
-        }
-      });
-    
-      // --- Read comments ---
-      // Listen to all users' entries by watching the whole comments node.
-      onValue(ref(database, "comments"), (snapshot) => {
-        messagesDisplay.innerHTML = '';
-    
-        if (!snapshot.exists()) {
-          messagesDisplay.textContent = "No messages yet!";
-          return;
-        }
-    
-        const comments = [];
-        snapshot.forEach((userSnapshot) => {
-          userSnapshot.child("entries").forEach((entrySnapshot) => {
-            comments.push(entrySnapshot.val());
-          });
-        });
-    
-        comments.sort((a, b) => b.timestamp - a.timestamp);
-    
-        comments.forEach((comment) => {
-          const p = document.createElement("p");
-          p.textContent = `${comment.name}: ${comment.text}`;
-          messagesDisplay.appendChild(p);
-        });
-      }, (error) => {
-        console.error("Error fetching messages:", error);
       });
     </script>
   </body>
