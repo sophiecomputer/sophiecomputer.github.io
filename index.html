@@ -23,6 +23,9 @@
         <p class="sidebar-text"> 
           <img src="/media/star-blink.gif", style="height: 1em">
           <a href="javascript:void(0);" onclick="return change_me('/stats/index.html', false);">Stats</a></p>
+        <p class="sidebar-text"> 
+          <img src="/media/star-blink.gif", style="height: 1em">
+          <a href="javascript:void(0);" onclick="return change_me('/guestbook.html', false);">Guestbook</a></p>
       </div>
 
       <div class="sidebar-text-area"> 
@@ -84,6 +87,10 @@
               <img src="/media/star-blink.gif", style="height: 1em">
               <a href="javascript:void(0);" onclick="return change_me('/stats/index.html', false);" class="sidebar-text">Stats</a>
             </th>
+            <th style="border-right: 0;">
+              <img src="/media/star-blink.gif", style="height: 1em">
+              <a href="javascript:void(0);" onclick="return change_me('/guestbook.html', false);" class="sidebar-text">Guestbook</a>
+            </th>
           </tr> 
         </table>
       </div>
@@ -93,16 +100,27 @@
           id="iframe-content" 
           name="iframe-content" 
           onload='javascript:(function(o){
-            const details = o.contentWindow.document.querySelector("details");
-            if (details) {
-              const wasOpen = details.open;
-              details.open = true; // Temporarily measure full height;
-              o.style.height = o.contentWindow.document.body.scrollHeight + "px";
-              details.open = wasOpen; 
-            }
-            else {
-              o.style.height = o.contentWindow.document.body.scrollHeight + "px";
-            }
+            const resize = () => {
+              const details = o.contentWindow.document.querySelector("details");
+              if (details) {
+                const wasOpen = details.open;
+                details.open = true; // Temporarily measure full height;
+                o.style.height = o.contentWindow.document.body.scrollHeight + "px";
+                details.open = wasOpen; 
+              }
+              else {
+                o.style.height = o.contentWindow.document.body.scrollHeight + "px";
+              }
+
+              for (let i = 0; i < 10; i++)
+                console.log(i); 
+            } 
+
+            resize(); 
+            
+            // Listen for future resizes. 
+            const doc = o.contentDocument;
+            new ResizeObserver(resize).observe(doc.body); 
           }(this));' 
           style="width: 100%; border: none; overflow: hidden;"></object>
       </div>
