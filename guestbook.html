@@ -75,10 +75,22 @@
     
       // --- Auth ---
       let currentUserId = null;
-      onAuthStateChanged(auth, (user) => {
+      onAuthStateChanged(auth, async (user) => {
         if (user) {
           currentUserId = user.uid;
           submitButton.disabled = false;
+        
+          const metadataRef = ref(database, `user_metadata/${currentUserId}`); 
+          const snap = await get(metadataRef); 
+          if (!snap.exists()) {
+            await update(ref(database), {
+              [`user_metadata/${currentUserId}`]: {
+                lastCommentTimestamp: 0, 
+                commentCount: 0, 
+                commentPeriodStart: Date.now()
+              }
+            }); 
+          } 
         } else {
           currentUserId = null;
           submitButton.disabled = true;
