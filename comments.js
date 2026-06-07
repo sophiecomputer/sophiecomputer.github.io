@@ -71,28 +71,26 @@ export function initComments(postId) {
         let messageText = messageInput.value.trim();
     
         // Sanitize the input text. 
-        function sanitize(inputText, size_bytes) {
+        function sanitize(inputText, length) {
           let text = String(inputText);
           text = text.normalize("NFC"); 
           text = text.replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F-\u009F]/g, "");  // Replace common control chars. 
 
-          // Enforce 5 KB limit. 
-          const encoder = new TextEncoder();
-          let bytes = encoder.encode(text);
-          if (bytes.length > size_bytes)
-              return null;
+          // Enforce character limit.
+          if (text.length > length)
+             return null;
           return text; 
         }
 
         const newNameText = sanitize(nameText, 512); 
         if (newNameText == null) {
-          alert("Sanitized name exceeds 512 bytes, enter a new name. Received: " + nameText);
+          alert("Sanitized name exceeds 512 characters, enter a new name. Received: " + nameText);
           return;
         }
         nameText = newNameText; 
         const newMessageText = sanitize(messageText, 1024 * 5); 
         if (newMessageText == null) {
-          alert("Sanitized message exceeds 5 kilobytes, enter a new message. Received: " + messageText);
+          alert("Sanitized message exceeds 5120 characters, enter a new message. Received: " + messageText);
           return;
         } 
         messageText = newMessageText; 
