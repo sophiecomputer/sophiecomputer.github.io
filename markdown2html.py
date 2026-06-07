@@ -342,6 +342,10 @@ def convert(
                         + "class=\"center\"></center>"
                     )
 
+                # Substitutes horizontal lines.
+                if line == "- - -":
+                    line = "<hr class=\"divider\">"
+
                 # Replace inline markdown elements in the line with their HTML
                 # equivalents. Note that markdown elements can be repeated on 
                 # the same line (i.e., "hello *sophie* super *computer*" 
