@@ -27,6 +27,7 @@ const auth = getAuth(app);
 export function initComments(postId) {
   // HTML element references. 
   const nameInput = document.getElementById('nameInput');
+  const websiteInput = document.getElementById('websiteInput'); 
   const messageInput = document.getElementById('messageInput');
   const submitButton = document.getElementById('submitButton');
   const messagesDisplay = document.getElementById('messagesDisplay');
@@ -68,6 +69,7 @@ export function initComments(postId) {
         if (!currentUserId) return;
     
         let nameText = nameInput.value.trim();
+        let websiteText = websiteInput.value.trim(); 
         let messageText = messageInput.value.trim();
     
         // Sanitize the input text. 
@@ -88,6 +90,14 @@ export function initComments(postId) {
           return;
         }
         nameText = newNameText; 
+        
+        const newWebsiteText = sanitize(websiteText, 512);
+        if (newWebsiteText == null) {
+          alert("Sanitized website exceeds 512 characters, enter a new URL. Received: " + websiteText);
+          return;
+        }
+        websiteText = newWebsiteText; 
+
         const newMessageText = sanitize(messageText, 1024 * 5); 
         if (newMessageText == null) {
           alert("Sanitized message exceeds 5120 characters, enter a new message. Received: " + messageText);
@@ -142,6 +152,7 @@ export function initComments(postId) {
             [`comments/${postId}/${currentUserId}/entries/${newCommentKey}`]: {
               text: messageText,
               name: nameText,
+              url: websiteText, 
               timestamp: now,
               userId: currentUserId
             },
@@ -203,7 +214,19 @@ export function initComments(postId) {
           const nameLabel = document.createElement("b");
           nameLabel.textContent = "Name";
           nameP.appendChild(nameLabel);
-          nameP.append(`: ${comment.name}`);
+          nameP.append(": "); 
+          
+          if (comment.url.length > 0) { 
+            const link = document.createElement("a");
+            link.textContent = comment.name; 
+            link.href = comment.url;
+            link.target = "_blank"; 
+            link.rel = "noopener noreferrer";
+            nameP.append(link); 
+          }
+          else {
+            nameP.append(comment.name);
+          }
           
           const timestamp = comment.timestamp;
           const comment_date = new Date(timestamp);
