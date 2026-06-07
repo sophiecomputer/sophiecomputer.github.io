@@ -188,7 +188,9 @@
         
           // --- Read comments ---
           // Listen to all users' entries by watching the whole comments node.
+          console.log("About to read entries");
           onValue(ref(database, `comments/${currentUserId}/entries`), (snapshot) => {
+            console.log("Reading entries");
             messagesDisplay.innerHTML = '';
         
             if (!snapshot.exists()) {
@@ -204,7 +206,8 @@
             });
         
             comments.sort((a, b) => b.timestamp - a.timestamp);
-        
+            console.log("Entries: " + comments); 
+
             comments.forEach((comment) => {
               const p = document.createElement("p");
               p.textContent = `${comment.name}: ${comment.text}`;
