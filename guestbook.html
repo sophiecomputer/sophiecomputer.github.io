@@ -188,7 +188,7 @@
         
           // --- Read comments ---
           // Listen to all users' entries by watching the whole comments node.
-          onValue(ref(database, "comments"), (snapshot) => {
+          onValue(ref(database, `comments/${currentUserId}/entries`), (snapshot) => {
             messagesDisplay.innerHTML = '';
         
             if (!snapshot.exists()) {
