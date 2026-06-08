@@ -23,15 +23,10 @@
     <div style="width: 100%%; height: 100%%;">
       <div class="main-content">
         <div class="main-section">
-          <p>This is a Guestbook for the website. Please sign your name and add a message. Users are identified <b>anonymously</b> based on their browser, so no sign-in is required (please assume the names in the comments are not accurate; anyone can pretend to be anyone else!). Across the entire website, users are limited to <b>one comment per hour</b>, with the size of the name and message limited to 512 characters and 5120 characters, respectively. The comment system is manually implemented by me with the free tier of Firebase; if it doesn't work, let me know.</p>
-
-          <p><input type="text" id="nameInput" placeholder="Input your name..."></p>
-          <p><input type="text" id="websiteInput" placeholder="Input your website URL (optional)..."></p>
-          <p><input type="text" id="messageInput" placeholder="Input your message..."></p>
-          <p><button id="submitButton">Submit Message</button></p>
+          <p>This is a Guestbook for the website. Please sign your name and add a message. Users are identified <b>anonymously</b> based on their browser, so no sign-in is required (please assume the names in the comments are not accurate; anyone can pretend to be anyone else!). Across the entire website, users are limited to <b>one comment per hour</b>, with the size of the name and message limited to 512 characters and 5120 characters, respectively. The comment system is manually implemented by me with the free tier of Firebase; if it doesn't work, let me know.</p>  
         </div>
 
-        <div id="messagesDisplay"></div> 
+        <div id="guestbookComments"></div>
       </div>
       <div class="last_updated">
         <p class="last-updated-text">
@@ -42,7 +37,7 @@
 
     <script type="module">
       import { initComments } from "/comments.js"; 
-      initComments("guestbook");
+      initComments("guestbook", document.getElementById('guestbookComments'));
     </script>
   </body>
 </html>

@@ -230,3 +230,10 @@ table {
     margin-top: 10px;
     margin-bottom: 0px; 
 }
+
+input, textarea, button {
+    font-family: inherit;
+    font-size: 14px; 
+    font-weight: inherit; 
+    line-height: inherit; 
+}; 

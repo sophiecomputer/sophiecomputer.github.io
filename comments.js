@@ -24,13 +24,34 @@ initializeAppCheck(app, {
 const database = getDatabase(app);
 const auth = getAuth(app);
 
-export function initComments(postId) {
-  // HTML element references. 
-  const nameInput = document.getElementById('nameInput');
-  const websiteInput = document.getElementById('websiteInput'); 
-  const messageInput = document.getElementById('messageInput');
-  const submitButton = document.getElementById('submitButton');
-  const messagesDisplay = document.getElementById('messagesDisplay');
+export function initComments(postId, commentsDiv) {
+  // HTML element references.
+  function make(placeholder, div, typ) {
+    const p = document.createElement("p");
+    const inp = document.createElement(typ);
+    inp.setAttribute("type", "text");
+    inp.setAttribute("placeholder", placeholder);
+    inp.setAttribute("style", "width: 100%;");
+    p.appendChild(inp);
+    div.appendChild(p); 
+    return inp;
+  }
+  const inputArea = document.createElement("div"); 
+  inputArea.setAttribute("class", "main-section");
+
+  const nameInput = make("Input your name...", inputArea, "input");
+  const websiteInput = make("Input your website URL (optional)...", inputArea, "input");
+  const messageInput = make("Input your message...", inputArea, "textarea"); 
+  
+  const submitP = document.createElement("p");
+  const submitButton = document.createElement("button");
+  submitButton.textContent = "Submit Comment";
+  submitP.appendChild(submitButton);
+  inputArea.appendChild(submitP);
+
+  commentsDiv.appendChild(inputArea);
+  const messagesDisplay = document.createElement("div"); 
+  commentsDiv.appendChild(messagesDisplay); 
 
   // Authenticate the user. 
   let currentUserId = null;
@@ -216,10 +237,16 @@ export function initComments(postId) {
           nameP.appendChild(nameLabel);
           nameP.append(": "); 
           
-          if (comment.url.length > 0) { 
+          let url = comment.url;
+          if (url.length > 0) { 
+            // If the user didn't prepend "https://", append it for them.
+            if (!/^https?:\/\//i.test(url)) {
+              url = "https://" + url;
+            } 
+
             const link = document.createElement("a");
             link.textContent = comment.name; 
-            link.href = comment.url;
+            link.href = url;
             link.target = "_blank"; 
             link.rel = "noopener noreferrer";
             nameP.append(link); 
