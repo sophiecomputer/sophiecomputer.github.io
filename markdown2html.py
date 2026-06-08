@@ -514,6 +514,7 @@ def convert(
                             + "false);\">"
                             + text
                             + "</a>"
+                            + line[mat.end():]
                         )
                     else:
                         line = (
