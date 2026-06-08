@@ -206,6 +206,7 @@ export function initComments(postId, commentsDiv, summarize) {
           await update(ref(database), updates);
     
           nameInput.value = "";
+          websiteInput.value = "";
           messageInput.value = "";
           console.log("Submitted comment.");
         } catch (error) {
@@ -248,14 +249,10 @@ export function initComments(postId, commentsDiv, summarize) {
         });
         comments.sort((a, b) => b.timestamp - a.timestamp);
         
-        let index = 0; 
         comments.forEach((comment) => {
           const div = document.createElement("div");
           div.className = "main-section";
-          
-          if (index == 0 && summarize)
-            div.setAttribute("style", "padding-top: 0px; border: thin solid black; border-width: 1px; border-top-width: 0px;");
-          index += 1; 
+          div.setAttribute("style", "border: thin solid black; border-width: 1px; border-top-width: 0px;"); 
     
           const nameP = document.createElement("p");
           const nameLabel = document.createElement("b");
