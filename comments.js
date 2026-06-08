@@ -251,6 +251,7 @@ export function initComments(postId, commentsDiv, summarize) {
           const nameP = document.createElement("p");
           const nameLabel = document.createElement("b");
           nameLabel.textContent = "Name";
+          nameP.setAttribute("style", "padding-top: 0px;"); 
           nameP.appendChild(nameLabel);
           nameP.append(": "); 
           
