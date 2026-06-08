@@ -9,12 +9,23 @@ The user supplies the path to an *output directory* where the "index.html"
 should be written *alongside* any media file. The input markdown file may 
 contain media in the form "![[/path/to/media]]" (relative to the input 
 directory). This content is copied to a "media/" directory and the resulting 
-"index.html" file includes it. Finally, the resulting 
+"index.html" file includes it.
+
+The markdown may contain special fields in it too. Special fields are identified
+by being in the format:
+
+%% name: key=value, key=value, key=value %%
+
+(Spacing can be variable, case doesn't matter, but it must be single-line.) 
+These special markdown elements are reduced to something else in the resulting
+HTML file. For example, it may be converted into a comment field if "name" is 
+"comments" and the two keys are "commentsId" and "minimize". 
 """
 
 import argparse
 import os
 import re
+import shlex 
 import shutil 
 import sys 
 
@@ -244,15 +255,76 @@ def convert(
                 # Substitutes horizontal lines.
                 if line == "- - -":
                     line = "<hr class=\"divider\">"
+                    f_out.write(line);
+                    continue
+                
+                # Replace special comment fields. These are unique markdown 
+                # elements with custom behavior.
+                if line.startswith("%%"):
+                    # This may be either a comment or a special line. Special 
+                    # lines must have a new pair of "%%" at the end, while 
+                    # comments do not.
+                    if line[2:].endswith("%%"):
+                        # Special line. The line must be in the format
+                        # %% name: key=value, key=value, key=value %%
+                        mat = re.fullmatch(
+                            r"%%\s*([A-Za-z_][A-Za-z0-9_]*)\s*:\s*(.*?)\s*%%",
+                            line
+                        )
+                        if not mat:
+                            raise ValueError(f"Invalid directive: \"{line}\"")
 
-                # Match comments. 
-                if line == "%%": 
-                    assert multiline == "comment" or multiline is None
-                    if multiline is None:
-                        multiline = "comment"
+                        name = mat.group(1) 
+                        args = mat.group(2)
+                        
+                        # Parse arguments.
+                        pairs = {} 
+                        if args:
+                            lexer = shlex.shlex(args, posix=True)
+                            lexer.whitespace = ","
+                            lexer.whitespace_split = True
+                            lexer.commenters = ""
+                            for item in lexer:
+                                item = item.strip()
+                                if not item:
+                                    continue
+                                key, value = item.split("=", 1)
+                                pairs[key.strip()] = value.strip()
+                    
+                        # Match the name.
+                        if name == "comments":
+                            assert all(
+                                key in pairs 
+                                for key in ("commentsId", "minimize")
+                            ), repr(pairs) 
+
+                            commentsId = pairs["commentsId"]
+                            minimize = pairs["minimize"]
+
+                            # Write the output. 
+                            divId = f"{commentsId}Comments"
+                            f_out.write((
+                                f"<div id=\"{divId}\"></div>"
+                                "<script type=\"module\">"
+                                  "import { initComments } from "
+                                  "\"/comments.js\";"
+                                  f"initComments(\"{commentsId}\", "
+                                  f"document.getElementById(\"{divId}\"), "
+                                  f"{minimize});"
+                                "</script>"
+                            ))
+
+                        else:
+                            raise ValueError(f"Unknown name {name}") 
+                        continue 
                     else:
-                        multiline = None
-                        continue  # Don't emit end of comment 
+                        # Comments (specifically, block comments).
+                        assert multiline == "comment" or multiline is None
+                        if multiline is None:
+                            multiline = "comment"
+                        else:
+                            multiline = None
+                            continue  # Don't emit end of comment 
 
                 # Match code blocks.
                 if "```" in line:

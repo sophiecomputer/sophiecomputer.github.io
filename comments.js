@@ -60,7 +60,9 @@ export function initComments(postId, commentsDiv, summarize) {
     summaryElement.textContent = "0 Comments";
     summaryElement.setAttribute("style", "padding-left: 20px; padding-bottom: 10px;"); 
     details.appendChild(summaryElement);
+    details.setAttribute("style", "padding-right: 0px;");  
     commentsDiv.appendChild(details);
+    inputArea.setAttribute("style", "border: thin solid black; border-width: 1px;"); 
     superDiv = details;
   }
   else {
@@ -225,7 +227,9 @@ export function initComments(postId, commentsDiv, summarize) {
         if (!snapshot.exists()) {
           const div = document.createElement("div");
           div.className = "main-section"; 
-          
+          if (summarize)
+            div.setAttribute("style", "padding-top: 0px; border: thin solid black; border-width: 1px; border-top-width: 0px;");
+
           const p = document.createElement("p");
           p.textContent = "No comments yet.";
           
@@ -243,11 +247,16 @@ export function initComments(postId, commentsDiv, summarize) {
           });
         });
         comments.sort((a, b) => b.timestamp - a.timestamp);
-
+        
+        let index = 0; 
         comments.forEach((comment) => {
           const div = document.createElement("div");
           div.className = "main-section";
           
+          if (index == 0 && summarize)
+            div.setAttribute("style", "padding-top: 0px; border: thin solid black; border-width: 1px; border-top-width: 0px;");
+          index += 1; 
+    
           const nameP = document.createElement("p");
           const nameLabel = document.createElement("b");
           nameLabel.textContent = "Name";
