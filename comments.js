@@ -24,7 +24,7 @@ initializeAppCheck(app, {
 const database = getDatabase(app);
 const auth = getAuth(app);
 
-export function initComments(postId, commentsDiv) {
+export function initComments(postId, commentsDiv, summarize) {
   // HTML element references.
   function make(placeholder, div, typ) {
     const p = document.createElement("p");
@@ -48,10 +48,27 @@ export function initComments(postId, commentsDiv) {
   submitButton.textContent = "Submit Comment";
   submitP.appendChild(submitButton);
   inputArea.appendChild(submitP);
-
-  commentsDiv.appendChild(inputArea);
-  const messagesDisplay = document.createElement("div"); 
-  commentsDiv.appendChild(messagesDisplay); 
+  
+  const messagesDisplay = document.createElement("div");
+  let superDiv = null;
+  let summaryElement = null; 
+  if (summarize) {
+    // Wrap everything in a "details" block, with the summary being text indicating how many 
+    // comments there are.
+    const details = document.createElement("details");
+    summaryElement = document.createElement("summary");
+    summaryElement.textContent = "0 Comments";
+    summaryElement.setAttribute("style", "padding-left: 20px; padding-bottom: 10px;"); 
+    details.appendChild(summaryElement);
+    commentsDiv.appendChild(details);
+    superDiv = details;
+  }
+  else {
+    // Emit the content directly. 
+    superDiv = commentsDiv;
+  }
+  superDiv.appendChild(inputArea);
+  superDiv.appendChild(messagesDisplay); 
 
   // Authenticate the user. 
   let currentUserId = null;
@@ -240,7 +257,7 @@ export function initComments(postId, commentsDiv) {
           let url = comment.url;
           if (url.length > 0) { 
             // If the user didn't prepend "https://", append it for them.
-            if (!/^https?:\/\//i.test(url)) {
+            if (!new RegExp("^https?://", "i").test(url)) {
               url = "https://" + url;
             } 
 
@@ -276,6 +293,9 @@ export function initComments(postId, commentsDiv) {
           
           messagesDisplay.appendChild(div);
         });
+        
+        if (summaryElement != null)
+          summaryElement.textContent = comments.length + " Comments";
       }, (error) => {
         console.error("Error fetching messages:", error);
       });
