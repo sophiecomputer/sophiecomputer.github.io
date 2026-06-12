@@ -245,7 +245,10 @@ def convert(
             
             # Process the file.
             for line in f_in:
-                line = line.strip()
+                if multiline == "code_block":
+                    line = line.rstrip()  # Keep tabs/spaces at front 
+                else:
+                    line = line.strip()
                 
                 # Assume the line is to be written as a new paragraph <p>. We
                 # do *not* emit this as a new paragraph if the line is anything
