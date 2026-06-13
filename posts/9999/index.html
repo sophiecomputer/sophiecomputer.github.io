@@ -19,15 +19,15 @@
               if (!url_params.has('contentonly')) {
                 const target = window.location.pathname + window.location.hash;
                 const dest = encodeURIComponent(target);
-                window.location.replace("/index.html?redirect=dest"); 
+                window.location.replace("/index.html?redirect=" + dest); 
               }
               window.addEventListener("load", () => { 
                 requestAnimationFrame(() => { 
                   const id = location.hash.slice(1); 
                   const el = document.getElementById(id); 
                   if (el) el.scrollIntoView(); 
-                } 
-              }
+                });
+              });
             </script> 
         
             <div style="width: 100%%; height: 100%%;">
@@ -37,7 +37,7 @@
         </div></div>
         <div class="last_updated">
           <p class="last-updated-text">
-            Last updated: June 13, 2026 at 00:47 UTC
+            Last updated: June 13, 2026 at 00:52 UTC
           </p>
         </div>
         </div></body></html>
