@@ -140,8 +140,17 @@ def blog_format_start(title: str, relative_index: str):
               const query_string = window.location.search; 
               const url_params = new URLSearchParams(query_string); 
               if (!url_params.has('contentonly')) {{
-                window.location.replace("/index.html?redirect={relative_index}");
+                const target = window.location.pathname + window.location.hash;
+                const dest = encodeURIComponent(target);
+                window.location.replace("/index.html?redirect=" + dest); 
               }}
+              window.addEventListener("load", () => {{ 
+                requestAnimationFrame(() => {{ 
+                  const id = location.hash.slice(1); 
+                  const el = document.getElementById(id); 
+                  if (el) el.scrollIntoView(); 
+                }});
+              }});
             </script> 
         
             <div style="width: 100%%; height: 100%%;">
@@ -216,6 +225,21 @@ def convert(
         os.makedirs(output_path)
     output_fname = f"{output_path}/{out_name}" 
 
+    def header_id(header: str) -> str:
+        """
+        Converts a header string into an ID for a header. This id is lookup-able
+        via hyperlink. The rules are as follows:
+        
+          1. The string is converted to lowercase. 
+          2. Everything except for letters and numbers are removed.
+        
+        Thus, the header "# 2026-01-01: Hello World" matches with the link
+        "[foo](/foo/bar.html#20260101helloworld)", as they both translate to the
+        same header ID.
+        """
+
+        return "".join(ch.lower() for ch in header if ch.isalnum())
+
     # The file is created in a streaming fashion.
     with open(input_path, "r") as f_in: 
         with open(output_fname, "w") as f_out:
@@ -245,10 +269,8 @@ def convert(
             
             # Process the file.
             for line in f_in:
-                if multiline == "code_block":
-                    line = line.rstrip()  # Keep tabs/spaces at front 
-                else:
-                    line = line.strip()
+                if multiline != "code_block":
+                    line = line.strip() 
                 
                 # Assume the line is to be written as a new paragraph <p>. We
                 # do *not* emit this as a new paragraph if the line is anything
@@ -331,7 +353,7 @@ def convert(
 
                 # Match code blocks.
                 if "```" in line:
-                    assert line == "```"  # Nothing else besides ```. 
+                    assert line.rstrip() == "```"  # Nothing else besides ```. 
                     assert multiline == "code_block" or multiline is None
                     if multiline is None:
                         # Emit the beginning of the code block.
@@ -340,7 +362,9 @@ def convert(
                     else:
                         # Emit the end of the code block.
                         f_out.write("</code></pre></div>")
-                 
+                        multiline = None
+                    continue
+
                 # Ignore empty lines and don't emit comments. 
                 if len(line) == 0 or multiline == "comment":
                     continue
@@ -506,14 +530,24 @@ def convert(
                         # Assuming this is a link relative to the root of the 
                         # website. Assert we can actually find it.
                         link = "/" + link.lstrip("/")
+                        
+                        # The link may contain a header in it. 
+                        if "#" in link:
+                            parts = link.split("#")
+                            link = parts[0]
+                            header = "#" + header_id(parts[1])
+                        else:
+                            header = ""
+
                         web_path = git_root + link
                         assert os.path.exists(web_path), web_path
                         assert link.endswith(".html"), link 
 
                         line = (
                             line[:mat.start()]
-                            + f"<a href=\"{link}?contentonly\" "
-                            + f"onclick=\"return window.top.change_me({link}, "
+                            + f"<a href=\"{link}?contentonly{header}\" "
+                            + "onclick=\""
+                            + f"return window.top.change_me('{link}{header}', "
                             + "false);\">"
                             + text
                             + "</a>"
@@ -540,10 +574,15 @@ def convert(
                     "#"    : "h1"
                 }
                 for header, html in headers.items():
-                    if line.startswith(header): 
+                    if line.startswith(header):
+                        # Create an ID for this if the reader wants to jump to
+                        # any part of it.
+                        text = line[len(header):].lstrip()
+                        id_str = header_id(text)
+                            
                         line = (
-                            f"<{html}>"
-                            + line[len(header):].lstrip()
+                            f"<{html} id=\"{id_str}\">"
+                            + text 
                             + f"</{html}>"
                         )
                         is_paragraph = False 
