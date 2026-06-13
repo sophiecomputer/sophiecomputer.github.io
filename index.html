@@ -165,17 +165,12 @@
       }
 
       window.addEventListener('popstate', function(event) {
+        const url = new URL(document.location);
+        if (!url.searchParams.has("contentonly"))
+          url.searchParams.set("contentonly", ""); 
+        
         iframe = document.getElementById('iframe-content');
-        
-        idx = iframe.src.indexOf('?');
-        if (idx == -1) front_part = iframe.src; 
-        else front_part = iframe.src.substring(0, idx); 
-      
-        const header = front_part.indexOf('#');
-        if (header != -1) front_part = front_part.substring(0, header); 
-        
-        if (front_part != document.location)
-          iframe.src = document.location + '?contentonly';
+        iframe.src = url.toString();
       }); 
     </script> 
 
