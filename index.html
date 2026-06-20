@@ -1,44 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>SOPHIE COMPUTER</title>
+    <link rel="stylesheet" href="/style-sidebar.css">
+    <link rel="icon" type="image/x-icon" href="/media/star-blink.gif">
+  </head>
+  <body class="webpage">
+    <div class="sidebar">
+      <div class="sidebar-text-area"> 
+        <p class="sidebar-text">
+          <img src="/media/star-blink.gif", style="height: 1em">
+          <a href="javascript:void(0);" onclick="return change_me('/main.html', false);">Home</a></p>
+        <p class="sidebar-text"> 
+          <img src="/media/star-blink.gif", style="height: 1em">
+          <a href="javascript:void(0);" onclick="return change_me('/posts/index.html', false);">Blog</a></p>
+        <p class="sidebar-text"> 
+          <img src="/media/star-blink.gif", style="height: 1em">
+          <a href="javascript:void(0);" onclick="return change_me('/posts/9999/index.html', false);">Microblog</a></p>
+        <p class="sidebar-text"> 
+          <img src="/media/star-blink.gif", style="height: 1em">
+          <a href="javascript:void(0);" onclick="return change_me('/stats/index.html', false);">Stats</a></p>
+        <p class="sidebar-text"> 
+          <img src="/media/star-blink.gif", style="height: 1em">
+          <a href="javascript:void(0);" onclick="return change_me('/guestbook.html', false);">Guestbook</a></p>
+      </div>
 
-        <!DOCTYPE html>
-        <html>
-          <head>
-            
-            <meta charset="UTF-8">
-            <meta name="viewport" 
-              content="width=device-width, initial-scale=1.0">
-            <title>Sophie Computer</title>
-            <link href="/style-content.css" rel="stylesheet" type="text/css" 
-              media="all">
-          
-          </head>
-          <body>
-            
-            <script> 
-              const query_string = window.location.search; 
-              const url_params = new URLSearchParams(query_string); 
-              if (!url_params.has('contentonly')) {
-                const target = window.location.pathname + window.location.hash;
-                const dest = encodeURIComponent(target);
-                window.location.replace("/index.html?redirect=" + dest); 
-              }
-              window.addEventListener("load", () => { 
-                requestAnimationFrame(() => { 
-                  const id = location.hash.slice(1); 
-                  const el = document.getElementById(id); 
-                  if (el) el.scrollIntoView(); 
-                });
-              });
-            </script> 
-        
-            <div style="width: 100%%; height: 100%%;">
-              <div class="main-content">
-                <div class="main-section">
-    <p>Hi!!! My name is Sophie, and this is my website!!! I like to use this place to put my thoughts and express myself online.</p><hr class="divider"><h2 id="aboutme">About Me</h2><p>I am in my mid 20s. My pronouns are she/her. My main interests include:</p><ul><li><b>Research</b>: I'm a second-year PhD student in electrical engineering (though much more on the software side). I consider research and science to be an important part of my identity.</li><li><b>Computers</b>: I love the logic and utility of computers. I like that complicated tasks can be reduced to simple concepts, and that those simple concepts can be defined or proven with concrete terms.</li><li><b>Software</b>: My primary interests are in programming. I like the elegance of software, and the ability of abstraction to allow all sorts of programs and modifications of systems to be done.</li><li><b>Hardware</b>: My research intersects deeply with hardware. I love the rigidity of hardware, and how the operation of the software can be explained by looking closely at the hardware.</li><li><b>Programming Languages</b>: I like to study programming languages. My bachelor's thesis had been to invent a language, and I'm trying to find ways to integrate domain-specific languages in my research.</li><li><b>Shōnen</b>: I like to watch anime and read manga, and shonen is the genre I like the most. I want to get really strong and powerful like Goku.</li><li><b>Sweets</b>: I have a big sweet tooth. I love to eat cookies and drink hot cocoa.</li><hr class="divider"></ul><h2 id="sophieupdates">Sophie Updates</h2><ul><li><b>May 1, 2026</b>: Did a poster session at my work</li><li><b>April 7, 2026</b>: Submitted two papers (one main author, one coauthor) to ISCA</li><li><b>January 5, 2026</b>: Began an internship at a big computer company</li><li><b>November 30, 2025</b>: Got a paper (coauthor) accepted at HPCA!</li><li><b>November 18, 2025</b>: Submitted a paper to ISCA</li><li><b>October 12, 2025</b>: Did a poster session with my lab</li><li><b>August 18, 2025</b>: Started my PhD</li><li><b>August 17, 2025</b>: Left my job in preparation for my PhD</li><li><b>August 1, 2025</b>: Submitted two papers (coauthor) to HPCA</li><li><b>January 23, 2025</b>: Interviewed someone for the first time</li><li><b>December 25-29, 2024</b>: Went to North Carolina to visit my grandfather</li><li><b>December 23, 2024</b>: Joined the software team of my new job</li><li><b>December 17, 2024</b>: First day of my new job</li><li><b>December 13, 2024</b>: Officially graduated with a Master's of Science in Computer Science</li><li><b>December 12, 2024</b>: Abstract accepted at a physics convention (oral presentation)</li><li><b>November 30, 2024</b>: Submitted the application for my PhD</li><li><b>November 23-30, 2024</b>: Went to Puerto Rico for the holidays</li><li><b>November 1, 2024</b>: Officially submitted my Master's thesis</li><li><b>October 23, 2024</b>: Successfully defended my Master's thesis</li><hr class="divider"></ul><h2 id="siteupdates">Site Updates</h2><ul><li><b>June 7, 2026</b>: Created a <a href="/guestbook.html?contentonly" onclick="return window.top.change_me('/guestbook.html', false);">guestbook</a>, sign your name!</li><li><b>June 6, 2026</b>: Started a <a href="/posts/9999/index.html?contentonly" onclick="return window.top.change_me('/posts/9999/index.html', false);">micro-blog</a></li><li><b>May 16, 2026</b>: Started <a href="/stats/index.html?contentonly" onclick="return window.top.change_me('/stats/index.html', false);">stat tracking</a></li><li><b>May 2, 2026</b>: Wrote a new blog post, <a href="/posts/0019/index.html?contentonly" onclick="return window.top.change_me('/posts/0019/index.html', false);">0019 [2026-05-02] Enforcing Custom Instruction Semantics</a></li><li><b>December 29, 2025</b>: Wrote a new blog post, <a href="/posts/0018/index.html?contentonly" onclick="return window.top.change_me('/posts/0018/index.html', false);">0018 [2025-12-29] Elegance</a></li><li><b>October 18, 2025</b>: Wrote a new blog post, <a href="/posts/0017/index.html?contentonly" onclick="return window.top.change_me('/posts/0017/index.html', false);">0017 [2025-10-18] Chili Oil Girl</a></li><li><b>October 17, 2025</b>: Wrote a new blog post, <a href="/posts/0016/index.html?contentonly" onclick="return window.top.change_me('/posts/0016/index.html', false);">0016 [2025-10-17] Poster Girl</a></li><li><b>August 15, 2025</b>: Wrote a new blog post, <a href="/posts/0015/index.html?contentonly" onclick="return window.top.change_me('/posts/0015/index.html', false);">0015 [2025-08-19] Sophie the Japan</a></li><li><b>August 9, 2025</b>: Updated all blog posts to have consistent formatting with the rest of the website</li><li><b>August 8, 2025</b>: Changed the styling to actually use h1, h2, h3, and h4 instead of specialized classes on p</li><li><b>August 7, 2025</b>: Wrote a new blog post, <a href="/posts/0014/index.html?contentonly" onclick="return window.top.change_me('/posts/0014/index.html', false);">0014 [2025-08-07] Power Profiling in Accel-Sim</a></li><li><b>February 7, 2025</b>: Made iframe navigation nice with history and formatted better for different screen sizes (including mobile)</li><li><b>February 6, 2025</b>: Made the "main content" an iframe so the sidebar stays the same</li><li><b>February 2, 2025</b>: Sidebar updates (new section stubs + video of the times + micro blogs)</li><li><b>January 30, 2025</b>: Connected "<a href="https://sophie.computer" target="_blank">https://sophie.computer</a>" with GitHub Pages</li><hr class="divider"></ul><h2 id="contact">Contact</h2><p>I'm a shy person, and I sometimes have periods where I'm not very talkative. If that doesn't discourage you, then feel free to send me a message on the following platforms:</p><ul><li><b>Discord</b>: @sophiecomputer</li><li><b>Email</b>: sophie.computer.100@gmail.com</li><li><b>Bluesky</b>: <a href="https://bsky.app/profile/sophiecomputer.bsky.social" target="_blank">sophiecomputer.bsky.social</a></li>
-        </div></div>
-        <div class="last_updated">
-          <p class="last-updated-text">
-            Last updated: June 20, 2026 at 21:27 UTC
+      <div class="sidebar-text-area"> 
+        <p class="sidebar-text-title" style="padding-bottom: 5%"> 
+          <a href="javascript:void(0);" onclick="return change_me('/papers/index.html', false);">ENTER THE PAPERZONE</a></p>
+        <img src="/media/paper-girl.png" alt="Happy girl thrilled to read research papers, text says 'Girls when they need to read research papers', 'wahoo'" style="max-width: 100%">
+      </div>
+
+      <div class="sidebar-text-area">
+        <p class="sidebar-text-title" style="padding-bottom: 5%">OOMFS</p>
+        <center>
+          <a href="https://danii.fi"><img src="https://danii.fi/daniifi8831.gif" style="padding-top: 0px;"></a>
+          <a href="https://uniwuni.github.io/"><img src="https://uniwuni.github.io/uni.gif" style="padding-top: 0px;"></a>
+          <a href="https://aly.fish/"><img src="https://aly.fish/88x31.svg" width="88" height="31" alt="88x31 for aly.fish"></a>
+        </center>
+      </div>
+
+      <div class="sidebar-text-area">
+        <p class="sidebar-text-title" style="padding-bottom: 5%">My 88x31</p>
+        <center>
+          <a href="https://sophie.computer">
+            <iframe src="https://sophie.computer/button.html" width="88px" height="31px" style="border:none" scrolling="no"></iframe>
+          </a>
+          <p>
+            <input type="text" readonly value='<a href="https://sophie.computer"><iframe src="https://sophie.computer/button.html" width="88px" height="31px" style="border:none" scrolling="no"></iframe></a>' onclick="this.select();"/>
           </p>
-        </div>
-        </div></body></html>
+        </center>
+      </div>
+    </div>
     
+    <div class="main-area">
+      <div class="title-area">  
+        <marquee id="title-marquee"> 
+          <div style="width: calc(100% - 120px);">
+            <p class="title-text">SOPHIE SOPHIE SOPHIE SOPHIE SOPHIE SOPHIE SOPHIE SOPHIE</p>
+          </div>  
+        </marquee>
+      </div>
+      <div class="topbar"> 
+        <table class="topbar-table"> 
+          <tr>
+            <th style="border-left: 0;">
+              <img src="/media/star-blink.gif", style="height: 1em">
+              <a href="javascript:void(0);" onclick="return change_me('/main.html', false);" class="sidebar-text">Home</a>
+            </th>
+            <th style="border-right: 0;">
+              <img src="/media/star-blink.gif", style="height: 1em">
+              <a href="javascript:void(0);" onclick="return change_me('/posts/index.html', false);" class="sidebar-text">Blog</a>
+            </th>
+            <th style="border-right: 0;">
+              <img src="/media/star-blink.gif", style="height: 1em">
+              <a href="javascript:void(0);" onclick="return change_me('/posts/9999/index.html', false);" class="sidebar-text">Microblog</a>
+            </th>
+            <th style="border-right: 0;">
+              <img src="/media/star-blink.gif", style="height: 1em">
+              <a href="javascript:void(0);" onclick="return change_me('/papers/index.html', false);" class="sidebar-text">Paperzone</a>
+            </th>
+            <th style="border-right: 0;">
+              <img src="/media/star-blink.gif", style="height: 1em">
+              <a href="javascript:void(0);" onclick="return change_me('/stats/index.html', false);" class="sidebar-text">Stats</a>
+            </th>
+            <th style="border-right: 0;">
+              <img src="/media/star-blink.gif", style="height: 1em">
+              <a href="javascript:void(0);" onclick="return change_me('/guestbook.html', false);" class="sidebar-text">Guestbook</a>
+            </th>
+          </tr> 
+        </table>
+      </div>
+      <div>
+        <iframe 
+          src="main.html" 
+          id="iframe-content" 
+          name="iframe-content" 
+          onload='javascript:(function(o){
+            const resize = () => {
+              const details = o.contentWindow.document.querySelector("details");
+              if (details) {
+                const wasOpen = details.open;
+                details.open = true; // Temporarily measure full height;
+                o.style.height = o.contentWindow.document.body.scrollHeight + "px";
+                details.open = wasOpen; 
+              }
+              else {
+                o.style.height = o.contentWindow.document.body.scrollHeight + "px";
+              }
+            }
+
+            resize(); 
+            
+            // Listen for future resizes. 
+            const doc = o.contentDocument;
+            new ResizeObserver(resize).observe(doc.body); 
+          }(this));' 
+          style="width: 100%; border: none; overflow: hidden;"></iframe>
+      </div>
+    </div>
+
+    <div class="sidebar">
+      <div class="sidebar-text-area"> 
+        <p class="sidebar-text-title" style="padding-bottom: 5%"> 
+          THE SOPHIE ITSELF</p>
+        <div class="avatar-gif" id="avatar-gif" style="width: 100%; height: 100%"></div>
+        <p class="sidebar-text-subtitle" style="padding-top: 10px">
+          Strongest in the Universe</p>
+      </div>
+      <div class="sidebar-text-area"> 
+        <p class="sidebar-text-title" style="padding-bottom: 5%"> 
+          VIDEO OF THE TIMES</p>
+        <iframe width="100%" height="315" src="https://www.youtube.com/embed/jDzhXFEVIhg?si=ombL84qjYUsixnqZ" title="YouTube video player" frameborder="0" allow="encrypted-media; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+      </div>
+    </div>
+
+    <script>
+      function change_me(loc, replace) {
+        var iframe = document.getElementById('iframe-content'); 
+        const new_url = new URL(loc, window.location.origin); 
+        new_url.searchParams.set("contentonly", "");
+        iframe.src = new_url.toString();
+        if (replace)
+          window.history.replaceState(null, null, loc); 
+        else 
+          window.history.pushState(null, null, loc); 
+      }
+
+      const query_string = window.location.search; 
+      const url_params = new URLSearchParams(query_string); 
+      if (url_params.has('redirect')) {
+        loc = decodeURIComponent(url_params.get('redirect')); 
+        change_me(loc, true); 
+      }
+      else if (url_params.has('contentonly')) {
+        // This page can't be displayed as content! Just resolve it to "main.html".
+        window.location.replace("main.html?contentonly"); 
+      }
+      else {
+        change_me('main.html', true); 
+      }
+
+      window.addEventListener('popstate', function(event) {
+        const url = new URL(document.location);
+        if (!url.searchParams.has("contentonly"))
+          url.searchParams.set("contentonly", ""); 
+        
+        iframe = document.getElementById('iframe-content');
+        iframe.src = url.toString();
+      }); 
+    </script> 
+
+  </body>
+</html>
