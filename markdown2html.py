@@ -288,13 +288,7 @@ def convert(
                 # do *not* emit this as a new paragraph if the line is anything
                 # multiline or if it's a header. 
                 is_paragraph = True
-                
-                # Substitutes horizontal lines.
-                if line == "- - -":
-                    line = "<hr class=\"divider\">"
-                    f_out.write(line);
-                    continue
-                
+                 
                 # Replace special comment fields. These are unique markdown 
                 # elements with custom behavior.
                 if line.startswith("%%"):
@@ -382,7 +376,9 @@ def convert(
                     continue
 
                 # Match bulleted lists. 
-                if line.startswith("* ") or line.startswith("- "):
+                if line.startswith("* ") or (
+                    line.startswith("- ") and line != "- - -"
+                ):
                     assert multiline == "bullet_list" or multiline is None
                     if multiline is None:
                         # Emit the beginning of the bullet list. 
@@ -396,6 +392,12 @@ def convert(
                     # Emit the end of the bullet list. 
                     f_out.write("</ul>") 
                     multiline = None 
+                
+                # Substitutes horizontal lines.
+                if line == "- - -":
+                    line = "<hr class=\"divider\">"
+                    f_out.write(line);
+                    continue
                 
                 # Match numbered lists.
                 if re.match(r"^\d+\. ", line):

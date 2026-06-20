@@ -106,12 +106,6 @@
     font-style: italic;
 }
 
-@-webkit-keyframes marquee {
-    0% { background-position: 0 0; } 
-    60% { background-position: 10% 10%; } 
-    100% { background-position: 15% 15%; } 
-}
-
 body, html {
     padding: 0;
     margin: 0;
@@ -182,4 +176,24 @@ body, html {
 
 a {
     cursor: url("/cursor-click.png"), auto; 
+}
+
+.marquee {
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.marquee-content {
+    display: inline-flex;
+    width: max-content;
+    animation: scroll 40s linear infinite;
+}
+
+@keyframes scroll {
+    from {
+        transform: translateX(0);
+    }
+    to {
+        transform: translateX(-50%);
+    }
 }
