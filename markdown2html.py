@@ -259,7 +259,8 @@ def convert(
             #   - comments ("comment") 
             #   - code blocks ("code_block")
             #   - bulleted lists ("bullet_list") 
-            #   - numbered lists ("number_list") 
+            #   - numbered lists ("number_list")
+            #   - YAML frontmatter ("frontmatter")
             # For each of these, we must know if we're currently reading 
             # something that extends multiple lines. For the *first line* that 
             # matches this description, emit the start of the block and the 
@@ -268,10 +269,21 @@ def convert(
             multiline = None
             
             # Process the file.
-            for line in f_in:
+            for line_idx, line in enumerate(f_in):
                 if multiline != "code_block":
                     line = line.strip() 
-                
+
+                if line == "---":
+                    if line_idx == 0:
+                        multiline = "frontmatter"
+                        continue 
+                    elif multiline == "frontmatter":
+                        multiline = None
+                        continue  # Skip ending "---" in frontmatter. 
+                elif multiline == "frontmatter":
+                    # Skip frontmatter, don't display it in the outputted HTML. 
+                    continue 
+
                 # Assume the line is to be written as a new paragraph <p>. We
                 # do *not* emit this as a new paragraph if the line is anything
                 # multiline or if it's a header. 
@@ -394,7 +406,7 @@ def convert(
                         multiline = "number_list" 
                     
                     # We're currently emitting a number list.
-                    line = line[line.rindex(" ") + 1:]  # Remove number 
+                    line = line[line.index(" ") + 1:]  # Remove number 
                 elif multiline == "number_list":
                     # We're not matching a number list, but we previously were. 
                     # Emit the end of the number list. 
