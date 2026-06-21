@@ -17,6 +17,8 @@ def get_args():
         help="Path to the background image (can be any size)")
     parser.add_argument("--text", required=True, 
         help="Text to put in the stamp (\\n = newline)") 
+    parser.add_argument("--border", default="spiky",
+        choices=["ridged", "rounded", "square", "spiky", "bubble"])
     parser.add_argument("--corner-text", default="")
     parser.add_argument("--border-color", default="white")
     parser.add_argument("--text-fill-color", default="white") 
@@ -112,6 +114,7 @@ def unobtained_filter(image):
 def create_stamp(
     background_path: str, 
     text: str, 
+    border_type: str = "",
     corner_text: str = "",
     border_color: str = "white", 
     text_fill_color: Tuple[int] = "cyan",
@@ -152,11 +155,25 @@ def create_stamp(
     text = text.replace("\\n", "\n")
 
     # Load border.
-    border_path = f"{basedir}/stamp-template.png"
+    border_path = f"{basedir}/templates/border_{border_type}.png"
     assert os.path.exists(border_path), border_path
     border = Image.open(border_path).convert("RGBA") 
     assert border.size == (100, 65), repr(border.size)
     width, height = 100, 65
+
+    # Extract the mask pixels from the border (which is any color that's not 
+    # white).
+    border_pixels = border.load()
+    mask = [
+        [
+            (
+                border_pixels[x, y][:3] != (255, 255, 255) and  # Not white  
+                border_pixels[x, y][3] == 255  # Fully opaque
+            )
+            for x in range(width)
+        ] for y in range(height)
+    ]
+    assert sum(1 for row in mask for cell in row if cell) > 0 
 
     # Adjust the border to be a different color.
     _, _, _, border_alpha = border.split() 
@@ -166,11 +183,9 @@ def create_stamp(
     # Load and resize background. 
     assert os.path.exists(background_path), background_path 
     background = Image.open(background_path).convert("RGBA")
-    background = background.resize((93, 58), Image.Resampling.NEAREST)
+    image = background.resize((width, height), Image.Resampling.NEAREST)
 
     # Create image. 
-    image = Image.new(mode="RGBA", size=border.size)
-    image.paste(background, (5, 5))
     draw = ImageDraw.Draw(image)
 
     font = fit_text(
@@ -216,9 +231,23 @@ def create_stamp(
         align="left"
     )
 
-    # Overlay transparent border on top.
-    image.alpha_composite(border)
-    
+    # The "image" is the background with text on it. The "border" is a border
+    # image with a white section on it around the edges, optionally transparent
+    # pixels further out from the edges, and *non-white non-transparent pixels*
+    # filling the center. The "image" will replace these center pixels. This is 
+    # computed using the mask from earlier. 
+    border_pixels = border.load()
+    image_pixels = image.load() 
+    result = Image.new("RGBA", border.size) 
+    result_pixels = result.load() 
+    for y in range(height):
+        for x in range(width):
+            if mask[y][x]:
+                result_pixels[x, y] = image_pixels[x, y]
+            else:
+                result_pixels[x, y] = border_pixels[x, y]
+    image = result
+
     # Optionally gray out the image. 
     if gray: 
         image = unobtained_filter(image) 
@@ -240,6 +269,7 @@ if __name__ == "__main__":
     create_stamp(
         background_path=args.background,
         text=args.text, 
+        border_type=args.border, 
         corner_text=args.corner_text,
         border_color=args.border_color,
         text_fill_color=args.text_fill_color, 
