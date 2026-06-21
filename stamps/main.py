@@ -264,8 +264,9 @@ def update_interactive():
     1. HTML header, present on all pages on this website.
     2. Introduction describing stamps. 
     3. Demo of the example stamps.
-    4. All stamps collected in order.
-    5. HTML footer, present on all pages on this website. 
+    4. View stamp info.
+    5. All stamps collected in order.
+    6. HTML footer, present on all pages on this website. 
     """
     
     # Create header.
@@ -300,6 +301,31 @@ def update_interactive():
                   if (el) el.scrollIntoView(); 
                 }});
               }});
+              
+              async function stamp_clicked(stampid) {{
+                  try {{
+                      const response = await fetch("stamps.json");
+                      if (!response.ok) {{
+                          throw new Error(
+                            `Failed to load stamps.json: ${{response.status}}`);
+                      }}
+              
+                      const stamps = await response.json();
+              
+                      const stamp = stamps.find(s => s.id === stampid);
+                      if (!stamp) {{
+                          throw new Error(`Stamp not found: ${{stampid}}`);
+                      }}
+              
+                      document.getElementById("descriptionP").textContent =
+                          stamp.description ?? "";
+              
+                      document.getElementById("conditionP").textContent =
+                          stamp.condition ?? "";
+                  }} catch (err) {{
+                      console.error(err);
+                  }}
+              }}
             </script> 
         
             <div style="width: 100%%; height: 100%%;">
@@ -326,13 +352,31 @@ def update_interactive():
         "</summary><p>"
     )
     for example in [s for s in stamps if s["id"].startswith("example-")]:
-        html += f"<img src=\"{example['stamp']}\">"
+        html += (
+            "<img "
+            f"src=\"{example['stamp']}\" "
+            f"onclick=\"stamp_clicked('{example['id']}');\">"
+        )
     html += "</p></details></p>"
 
+    # Add section for viewing stamp info. 
+    html += """
+      <hr class="divider">
+      <p><b>Description</b>: <span id="descriptionP">
+          Click a stamp to view its description.</span></p>
+      <p><b>Acquisition condition</b>: <span id="conditionP">
+          Click a stamp to view its acquisition condition.</span></p>
+      <hr class="divider">
+    """
+
     # Add all other stamps in order. 
-    html += "<hr class=\"divider\"><p>"
+    html += "<p>"
     for stamp in [s for s in stamps if not s["id"].startswith("example-")]:
-        html += f"<img src=\"{stamp['stamp']}\">"
+        html += (
+            "<img "
+            f"src=\"{stamp['stamp']}\" "
+            f"onclick=\"stamp_clicked('{stamp['id']}');\">"
+        )
     html += "</p>"
     
     # Add HTML footer. 
@@ -378,12 +422,15 @@ def demo():
                 "main-text": rarity[0].upper() + rarity[1:], 
                 "corner-text": "1/1/2026" if rarity == "common" else "", 
                 "acquired": acquired, 
-                "condition": "Sample condition for acquiring stamp",
+                "condition": (
+                    f"Condition for rarity = {rarity}, "
+                    f"acquired = {acquired}"
+                ),
                 "rarity": rarity, 
                 "description": (
-                    "Sample description after acquiring stamp"
-                    if acquired == "true" else ""
-                ), 
+                    f"Description for rarity = {rarity}, "
+                    f"acquired = {acquired}"
+                ),
                 "tags": "research", 
                 "date": get_date_time()
             }

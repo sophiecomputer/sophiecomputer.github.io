@@ -28,6 +28,31 @@
                   if (el) el.scrollIntoView(); 
                 });
               });
+              
+              async function stamp_clicked(stampid) {
+                  try {
+                      const response = await fetch("stamps.json");
+                      if (!response.ok) {
+                          throw new Error(
+                            `Failed to load stamps.json: ${response.status}`);
+                      }
+              
+                      const stamps = await response.json();
+              
+                      const stamp = stamps.find(s => s.id === stampid);
+                      if (!stamp) {
+                          throw new Error(`Stamp not found: ${stampid}`);
+                      }
+              
+                      document.getElementById("descriptionP").textContent =
+                          stamp.description ?? "";
+              
+                      document.getElementById("conditionP").textContent =
+                          stamp.condition ?? "";
+                  } catch (err) {
+                      console.error(err);
+                  }
+              }
             </script> 
         
             <div style="width: 100%%; height: 100%%;">
@@ -40,11 +65,18 @@
         especially serious things (getting an award, publishing a paper, 
         submitting a patent, etc.) to everyday things (watching a show, visiting 
         a new location, eating a new food, etc.).</p>
-    <p><details><summary style='padding-left: 20px; padding-bottom: 10px;'>Example stamps</summary><p><img src="stamps/example-acquired-common.png"><img src="stamps/example-acquired-uncommon.png"><img src="stamps/example-acquired-rare.gif"><img src="stamps/example-acquired-super.gif"><img src="stamps/example-acquired-ultra.gif"><img src="stamps/example-unacquired-common.png"><img src="stamps/example-unacquired-uncommon.png"><img src="stamps/example-unacquired-rare.png"><img src="stamps/example-unacquired-super.png"><img src="stamps/example-unacquired-ultra.png"></p></details></p><hr class="divider"><p><img src="stamps/papers7day.png"></p>
+    <p><details><summary style='padding-left: 20px; padding-bottom: 10px;'>Example stamps</summary><p><img src="stamps/example-acquired-common.png" onclick="stamp_clicked('example-acquired-common');"><img src="stamps/example-acquired-uncommon.png" onclick="stamp_clicked('example-acquired-uncommon');"><img src="stamps/example-acquired-rare.gif" onclick="stamp_clicked('example-acquired-rare');"><img src="stamps/example-acquired-super.gif" onclick="stamp_clicked('example-acquired-super');"><img src="stamps/example-acquired-ultra.gif" onclick="stamp_clicked('example-acquired-ultra');"><img src="stamps/example-unacquired-common.png" onclick="stamp_clicked('example-unacquired-common');"><img src="stamps/example-unacquired-uncommon.png" onclick="stamp_clicked('example-unacquired-uncommon');"><img src="stamps/example-unacquired-rare.png" onclick="stamp_clicked('example-unacquired-rare');"><img src="stamps/example-unacquired-super.png" onclick="stamp_clicked('example-unacquired-super');"><img src="stamps/example-unacquired-ultra.png" onclick="stamp_clicked('example-unacquired-ultra');"></p></details></p>
+      <hr class="divider">
+      <p><b>Description</b>: <span id="descriptionP">
+          Click a stamp to view its description.</span></p>
+      <p><b>Acquisition condition</b>: <span id="conditionP">
+          Click a stamp to view its acquisition condition.</span></p>
+      <hr class="divider">
+    <p><img src="stamps/stampbook-created.png" onclick="stamp_clicked('stampbook-created');"></p>
         </div></div>
         <div class="last_updated">
           <p class="last-updated-text">
-            Last updated: June 21, 2026 at 23:04 UTC
+            Last updated: June 21, 2026 at 23:46 UTC
           </p>
         </div>
         </div></body></html>
