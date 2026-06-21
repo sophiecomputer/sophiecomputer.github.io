@@ -34,11 +34,12 @@ def get_args():
 
 
 def fit_text(draw, text, font_path, max_width, max_height,
-             min_size=6, max_size=200):
+             min_size=12, max_size=16):
     """
     Find the largest font size that allows the text to fit inside
     the specified rectangle.
     """
+
     best_font = None
 
     for size in range(max_size, min_size - 1, -1):
@@ -60,10 +61,6 @@ def fit_text(draw, text, font_path, max_width, max_height,
 
     if best_font is None:
         best_font = ImageFont.truetype(font_path, min_size)
-    else:
-        # Size down the font a little further. 
-        best_font = ImageFont.truetype(font_path, size) 
-    
     return best_font
 
 
@@ -139,7 +136,7 @@ def special_effect(image, effect):
             (amount, amount, amount) 
         )
         tr, tg, tb = tint 
-        lum = (r + g + b) / 100.0 
+        lum = (r + g + b) / 80.0 
         target_r = lum * tr 
         target_g = lum * tg 
         target_b = lum * tb
@@ -347,8 +344,7 @@ def create_stamp(
         font,
         max_width=80,
         max_height=40,
-        min_size=4,
-        max_size=min(width, height)
+        max_size=(20 if serifs else 16)
     )
 
     bbox = draw.multiline_textbbox(

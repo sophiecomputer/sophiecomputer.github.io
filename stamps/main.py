@@ -15,8 +15,30 @@ import readline
 import subprocess
 
 from create import create_stamp
+from datetime import datetime, UTC 
 from PIL import Image
 from typing import Dict
+
+
+def get_date_time() -> str:
+    """
+    Date and time as a string formatted like YYYY-MM-DD@HH-MM. 
+    """
+
+    return datetime.now().astimezone().strftime("%Y-%m-%d@%H-%M")
+
+
+def get_stamps() -> Dict: 
+    """
+    Returns all stamp JSON objects.
+    """
+
+    if os.path.exists("stamps.json"):
+        with open("stamps.json", "r") as f:
+            all_json = json.load(f) 
+    else:
+        all_json = []
+    return all_json
 
 
 def add(data: Dict[str, str]): 
@@ -26,7 +48,7 @@ def add(data: Dict[str, str]):
 
     assert set(data.keys()) == {
         "id", "background", "main-text", "corner-text", "acquired", "condition",
-        "rarity", "description", "tags"
+        "rarity", "description", "tags", "date"
     }
     basedir = os.path.dirname(__file__)
     
@@ -63,7 +85,7 @@ def add(data: Dict[str, str]):
         data["border-type"] = "spiky"
         data["border-color"] = "red"
         data["style"] = "italics-bold"
-        data["effect"] = "wave" 
+        data["effect"] = "holographic" 
         data["serifs"] = "true"
     elif rarity == "ultra":
         data["text-fill-color"] = "magenta"
@@ -71,7 +93,7 @@ def add(data: Dict[str, str]):
         data["border-type"] = "bubble"
         data["border-color"] = "magenta"
         data["style"] = "italics-bold"
-        data["effect"] = "holographic" 
+        data["effect"] = "pulse" 
         data["serifs"] = "true"
     else:
         raise ValueError(f"Unknown rarity \"{rarity}\"")
@@ -111,12 +133,10 @@ def add(data: Dict[str, str]):
     data["stamp"] = f"stamps/{data['id']}.{ext}"
     print(f"Stamp image saved to \"{new_stamp_fname}\".")
     
-    # Next, add the JSON to the log. 
-    if os.path.exists("stamps.json"):
-        with open("stamps.json", "r") as f:
-            all_json = json.load(f) 
-    else:
-        all_json = []
+    # Next, add the JSON to the log. If anything exists with the same ID, remove
+    # the duplicate.
+    all_json = get_stamps()
+    all_json = [j for j in all_json if j["id"] != data["id"]]   
     all_json.append(data)
     with open("stamps.json", "w") as f:
         json.dump(all_json, f, indent=4)
@@ -230,6 +250,7 @@ def add_interactive():
 
     # We've obtained the JSON from the interactive routine, pass it to 
     # non-interactive handler. 
+    data["date"] = get_date_time()
     add(data)
 
 
@@ -238,7 +259,136 @@ def acquire_interactive():
 
 
 def update_interactive():
-    pass
+    """
+    Creates the HTML page for the stamps. The HTML has the following format: 
+    1. HTML header, present on all pages on this website.
+    2. Introduction describing stamps. 
+    3. Demo of the example stamps.
+    4. All stamps collected in order.
+    5. HTML footer, present on all pages on this website. 
+    """
+    
+    # Create header.
+    title = "Stampbook"
+    html = f"""
+        <!DOCTYPE html>
+        <html>
+          <head>
+            
+            <meta charset="UTF-8">
+            <meta name="viewport" 
+              content="width=device-width, initial-scale=1.0">
+            <title>{title}</title>
+            <link href="/style-content.css" rel="stylesheet" type="text/css" 
+              media="all">
+          
+          </head>
+          <body>
+            
+            <script> 
+              const query_string = window.location.search; 
+              const url_params = new URLSearchParams(query_string); 
+              if (!url_params.has('contentonly')) {{
+                const target = window.location.pathname + window.location.hash;
+                const dest = encodeURIComponent(target);
+                window.location.replace("/index.html?redirect=" + dest); 
+              }}
+              window.addEventListener("load", () => {{ 
+                requestAnimationFrame(() => {{ 
+                  const id = location.hash.slice(1); 
+                  const el = document.getElementById(id); 
+                  if (el) el.scrollIntoView(); 
+                }});
+              }});
+            </script> 
+        
+            <div style="width: 100%%; height: 100%%;">
+              <div class="main-content">
+                <div class="main-section">
+    """
+
+    # Add introduction describing stamps. 
+    html += """
+        <h1>Stampbook</h1>
+        <p>Each <i>stamp</i> on this page signifies an high achievement, 
+        regular accomplishment, or otherwise fun thing I've done. They can span 
+        especially serious things (getting an award, publishing a paper, 
+        submitting a patent, etc.) to everyday things (watching a show, visiting 
+        a new location, eating a new food, etc.).</p>
+    """
+
+    # Add demo of example stamps. The example stamps begin with "example-". 
+    stamps = get_stamps() 
+    html += (
+        "<p><details>"
+        "<summary style='padding-left: 20px; padding-bottom: 10px;'>"
+        "Example stamps"
+        "</summary><p>"
+    )
+    for example in [s for s in stamps if s["id"].startswith("example-")]:
+        html += f"<img src=\"{example['stamp']}\">"
+    html += "</p></details></p>"
+
+    # Add all other stamps in order. 
+    html += "<hr class=\"divider\"><p>"
+    for stamp in [s for s in stamps if not s["id"].startswith("example-")]:
+        html += f"<img src=\"{stamp['stamp']}\">"
+    html += "</p>"
+    
+    # Add HTML footer. 
+    timestamp = datetime.now(UTC).strftime(
+        "Last updated: %B %-d, %Y at %H:%M UTC"
+    )
+    html += f"""
+        </div></div>
+        <div class=\"last_updated\">
+          <p class=\"last-updated-text\">
+            {timestamp}
+          </p>
+        </div>
+        </div></body></html>
+    """
+
+    # Write updated index to file.
+    basedir = os.path.dirname(__file__)
+    with open(f"{basedir}/index.html", "w") as f:
+        f.write(html)
+    print(f"Outputted to \"{basedir}/index.html\"")
+
+
+def demo():
+    """
+    Creates demo stamps. 
+    """
+
+    background_path = input("Path to background image: ").strip()
+    while not os.path.exists(background_path):
+        background_path = input("Does not exist, try again: ").strip()
+
+    # Create each stamp. 
+    for acquired in ("true", "false"):
+        for rarity in ("common", "uncommon", "rare", "super", "ultra"):
+            data = {
+                "id": (
+                    "example-"
+                    f"{'' if acquired == 'true' else 'un'}acquired-"
+                    f"{rarity}" 
+                ), 
+                "background": background_path,
+                "main-text": rarity[0].upper() + rarity[1:], 
+                "corner-text": "1/1/2026" if rarity == "common" else "", 
+                "acquired": acquired, 
+                "condition": "Sample condition for acquiring stamp",
+                "rarity": rarity, 
+                "description": (
+                    "Sample description after acquiring stamp"
+                    if acquired == "true" else ""
+                ), 
+                "tags": "research", 
+                "date": get_date_time()
+            }
+            add(data)
+
 
 if __name__ == "__main__":
     while True:
@@ -246,6 +396,7 @@ if __name__ == "__main__":
         print("  1: add a new stamp") 
         print("  2: acquire an existing stamp")
         print("  3: update the stampbook")
+        print("  4: create demo stamps")
         try:
             action = input("> ").strip()
         except (EOFError, KeyboardInterrupt):
@@ -260,6 +411,8 @@ if __name__ == "__main__":
             acquire_interactive()
         elif action == "3": 
             update_interactive()
+        elif action == "4":
+            demo()
         else:
             print(f"Unrecognized action \"{action}\"")
 
