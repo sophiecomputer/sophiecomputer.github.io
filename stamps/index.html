@@ -1,0 +1,45 @@
+        <!DOCTYPE html>
+        <html>
+          <head>
+            
+            <meta charset="UTF-8">
+            <meta name="viewport" 
+              content="width=device-width, initial-scale=1.0">
+            <title>Sophie Computer: STAMPS</title>
+            <link href="/style-content.css" rel="stylesheet" type="text/css" 
+              media="all">
+          
+          </head>
+          <body>
+            
+            <script> 
+              const query_string = window.location.search; 
+              const url_params = new URLSearchParams(query_string); 
+              if (!url_params.has('contentonly')) {
+                const target = window.location.pathname + window.location.hash;
+                const dest = encodeURIComponent(target);
+                const replace = "/index.html?redirect=" + dest; 
+                console.log("Location = " + window.location + ", replace = " + replace); 
+                window.location.replace(replace); 
+              }
+              window.addEventListener("load", () => { 
+                requestAnimationFrame(() => { 
+                  const id = location.hash.slice(1); 
+                  const el = document.getElementById(id); 
+                  if (el) el.scrollIntoView(); 
+                });
+              });
+            </script> 
+        
+            <div style="width: 100%%; height: 100%%;">
+              <div class="main-content">
+                <div class="main-section">
+                  <h1>Stampbook</h1><p>Each <i>stamp</i> on this page signifies an high achievement, regular accomplishment, or otherwise fun thing I've done. They can span especially serious things (getting an award, publishing a paper, submitting a patent, etc.) to everyday things (watching a show, visiting a new location, eating a new food, etc.). Feel free to suggest new stamps and to create your own using <a href="https://github.com/sophiecomputer/sophiecomputer.github.io/blob/main/stamps/create.py" target="_blank">this link</a>.</p><hr class="divider"><p><img src="stamps/created-stampbook.png"></p>
+        </div></div>
+        <div class="last_updated">
+          <p class="last-updated-text">
+            Last updated: June 20, 2026 at 22:17 UTC
+          </p>
+        </div>
+        </div></body></html>
+    
