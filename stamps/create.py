@@ -3,6 +3,7 @@ Script for creating stamps.
 """
 
 import argparse
+import math 
 import os
 import textwrap 
 
@@ -27,6 +28,8 @@ def get_args():
         choices=["normal", "italics", "bold", "italics-bold"])
     parser.add_argument("--no-serifs", action="store_true", default=False)
     parser.add_argument("--gray", action="store_true", default=False) 
+    parser.add_argument("--effect", default=None, 
+        choices=["shimmer", "pulse", "wave", "holographic"])
     return parser.parse_args()
 
 
@@ -111,6 +114,153 @@ def unobtained_filter(image):
     return result
 
 
+def special_effect(image, effect):
+    """
+    Applies a special effect to the image. 
+    """
+
+    assert effect in ("shimmer", "pulse", "wave", "holographic"), effect
+    
+    FPS = 10  # Don't change.
+    DURATION = 5
+    N_FRAMES = FPS * DURATION 
+
+    image = image.convert("RGBA")
+
+    w, h = image.size
+    src = image.load()
+
+    frames = []
+    
+    tint = (128, 0, 128)
+    def tint_pixel(r, g, b, amount):
+        ar, ag, ab = (
+            amount if isinstance(amount, tuple) else
+            (amount, amount, amount) 
+        )
+        tr, tg, tb = tint 
+        lum = (r + g + b) / 100.0 
+        target_r = lum * tr 
+        target_g = lum * tg 
+        target_b = lum * tb
+        r = int(r + (target_r - r) * ar)
+        g = int(g + (target_g - g) * ag)
+        b = int(b + (target_b - b) * ab)
+        return r, g, b
+
+    if effect == "shimmer":
+        for frame in range(N_FRAMES):
+    
+            t = frame / N_FRAMES
+    
+            sweep = -w + (3 * w) * t
+    
+            out = image.copy()
+            dst = out.load()
+    
+            for y in range(h):
+                for x in range(w):
+    
+                    r, g, b, a = src[x, y]
+    
+                    if a == 0:
+                        continue
+    
+                    d = abs((x + y * 0.5) - sweep)
+    
+                    if d < 15:
+                        strength = (1 - d / 15) * 0.25
+                        
+                        r, g, b = tint_pixel(r, g, b, strength)
+    
+                    dst[x, y] = (r, g, b, a)
+    
+            frames.append(out)
+    elif effect == "pulse":  
+        for frame in range(N_FRAMES):
+            phase = 2 * math.pi * frame / N_FRAMES
+    
+            strength = 0.12 * (1 + math.sin(phase))
+    
+            out = image.copy()
+            dst = out.load()
+    
+            for y in range(h):
+                for x in range(w):
+    
+                    r, g, b, a = src[x, y]
+    
+                    if a == 0:
+                        continue
+    
+                    r, g, b = tint_pixel(r, g, b, strength)
+    
+                    dst[x, y] = (r, g, b, a)
+    
+            frames.append(out)
+    elif effect == "wave":
+        for frame in range(N_FRAMES):
+    
+            t = frame / N_FRAMES
+    
+            out = image.copy()
+            dst = out.load()
+    
+            for y in range(h):
+                for x in range(w):
+    
+                    r, g, b, a = src[x, y]
+    
+                    if a == 0:
+                        continue
+    
+                    wave = math.sin(
+                        x / 8
+                        + 2 * math.pi * t
+                    )
+    
+                    strength = max(0, wave) * 0.12
+    
+                    r, g, b = tint_pixel(r, g, b, strength)
+    
+                    dst[x, y] = (r, g, b, a)
+    
+            frames.append(out)
+    elif effect == "holographic":
+        for frame in range(N_FRAMES):
+    
+            t = frame / N_FRAMES
+    
+            out = image.copy()
+            dst = out.load()
+    
+            for y in range(h):
+                for x in range(w):
+    
+                    r, g, b, a = src[x, y]
+    
+                    if a == 0:
+                        continue
+    
+                    phase = (
+                        x / 12
+                        + y / 20
+                        + 2 * math.pi * t
+                    )
+    
+                    rr = 0.06 * (1 + math.sin(phase))
+                    gg = 0.06 * (1 + math.sin(phase + 2.09))
+                    bb = 0.06 * (1 + math.sin(phase + 4.18))
+    
+                    r, g, b = tint_pixel(r, g, b, (rr, gg, bb))
+    
+                    dst[x, y] = (r, g, b, a)
+    
+            frames.append(out)
+    
+    return frames
+
+
 def create_stamp(
     background_path: str, 
     text: str, 
@@ -121,14 +271,16 @@ def create_stamp(
     text_border_color: Tuple[int] = "black",
     style: str = "normal", 
     serifs: bool = True,
-    gray: bool = False 
+    gray: bool = False, 
+    effect: str = None 
 ):
     """
     Creates a stamp image. "style" must be either "normal", "italics", "bold", 
     or "italics-bold".
     """
 
-    assert style in ("normal", "italics", "bold", "italics-bold")
+    assert style in ("normal", "italics", "bold", "italics-bold"), style
+    assert effect in (None, "shimmer", "pulse", "wave", "holographic"), effect
     font_name = (
         (
             "times" if style == "normal" else 
@@ -248,9 +400,21 @@ def create_stamp(
                 result_pixels[x, y] = border_pixels[x, y]
     image = result
 
-    # Optionally gray out the image. 
+    # Optionally gray out the image or apply special effect. 
+    save_function = lambda img, path: img.save(path)
+    file_type = "png"
     if gray: 
-        image = unobtained_filter(image) 
+        image = unobtained_filter(image)
+    elif effect is not None:
+        image = special_effect(result, effect)
+        file_type = "gif"
+        save_function = lambda frames, path: frames[0].save(
+            path, 
+            save_all=True, 
+            append_images=frames[1:], 
+            duration=100,  # 10 FPS
+            loop=0, 
+        )
 
     downloads_path = Path.home() / "Downloads"
     if not os.path.exists(downloads_path):
@@ -259,8 +423,8 @@ def create_stamp(
             downloads_path = basedir
     downloads_path = str(downloads_path)
 
-    output_path = f"{downloads_path}/stamp.png"
-    image.save(output_path)
+    output_path = f"{downloads_path}/stamp.{file_type}"
+    save_function(image, output_path)  
     print(f"Image outputted to \"{os.path.abspath(output_path)}\"")
 
 
@@ -276,5 +440,6 @@ if __name__ == "__main__":
         text_border_color=args.text_border_color, 
         style=args.style, 
         serifs=(not args.no_serifs), 
-        gray=args.gray
+        gray=args.gray,
+        effect=args.effect
     )
