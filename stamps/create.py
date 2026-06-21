@@ -17,6 +17,7 @@ def get_args():
         help="Path to the background image (can be any size)")
     parser.add_argument("--text", required=True, 
         help="Text to put in the stamp (\\n = newline)") 
+    parser.add_argument("--corner-text", default="")
     parser.add_argument("--border-color", default="white")
     parser.add_argument("--text-fill-color", default="white") 
     parser.add_argument("--text-border-color", default="black")
@@ -111,6 +112,7 @@ def unobtained_filter(image):
 def create_stamp(
     background_path: str, 
     text: str, 
+    corner_text: str = "",
     border_color: str = "white", 
     text_fill_color: Tuple[int] = "cyan",
     text_border_color: Tuple[int] = (0, 0, 0),
@@ -143,9 +145,10 @@ def create_stamp(
     )
     font = f"/usr/share/fonts/TTF/{font_name}.ttf"
     assert os.path.exists(font), font
+    corner_font = f"/usr/share/fonts/TTF/OpenSans-Regular.ttf"
+    assert os.path.exists(corner_font), corner_font
 
     basedir = os.path.dirname(__file__)
-
     text = text.replace("\\n", "\n")
 
     # Load border.
@@ -202,6 +205,15 @@ def create_stamp(
         stroke_fill=text_border_color,
         align="center"
     )
+    draw.text(
+        (7, 4), 
+        corner_text,
+        font=ImageFont.truetype(corner_font, 12), 
+        fill=border_color,
+        stroke_width=2, 
+        stroke_fill="black", 
+        align="left"
+    )
 
     # Overlay transparent border on top.
     image.alpha_composite(border)
@@ -227,6 +239,7 @@ if __name__ == "__main__":
     create_stamp(
         background_path=args.background,
         text=args.text, 
+        corner_text=args.corner_text,
         border_color=args.border_color,
         text_fill_color=args.text_fill_color, 
         text_border_color=args.text_border_color, 
