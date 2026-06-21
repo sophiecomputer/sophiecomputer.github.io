@@ -115,7 +115,7 @@ def create_stamp(
     corner_text: str = "",
     border_color: str = "white", 
     text_fill_color: Tuple[int] = "cyan",
-    text_border_color: Tuple[int] = (0, 0, 0),
+    text_border_color: Tuple[int] = "black",
     style: str = "normal", 
     serifs: bool = True,
     gray: bool = False 
@@ -201,6 +201,7 @@ def create_stamp(
         text,
         font=font,
         fill=text_fill_color,
+        spacing=0,
         stroke_width=2, 
         stroke_fill=text_border_color,
         align="center"
