@@ -273,14 +273,15 @@ def create_stamp(
     serifs: bool = True,
     gray: bool = False, 
     effect: str = None 
-):
+) -> str:
     """
-    Creates a stamp image. "style" must be either "normal", "italics", "bold", 
-    or "italics-bold".
+    Creates a stamp image and returns the file name. 
     """
 
     assert style in ("normal", "italics", "bold", "italics-bold"), style
-    assert effect in (None, "shimmer", "pulse", "wave", "holographic"), effect
+    assert effect in (
+        None, "none", "shimmer", "pulse", "wave", "holographic"
+    ), effect
     font_name = (
         (
             "times" if style == "normal" else 
@@ -405,7 +406,7 @@ def create_stamp(
     file_type = "png"
     if gray: 
         image = unobtained_filter(image)
-    elif effect is not None:
+    elif effect not in (None, "none"):
         image = special_effect(result, effect)
         file_type = "gif"
         save_function = lambda frames, path: frames[0].save(
@@ -423,9 +424,10 @@ def create_stamp(
             downloads_path = basedir
     downloads_path = str(downloads_path)
 
-    output_path = f"{downloads_path}/stamp.{file_type}"
+    output_path = os.path.abspath(f"{downloads_path}/stamp.{file_type}")
     save_function(image, output_path)  
-    print(f"Image outputted to \"{os.path.abspath(output_path)}\"")
+    print(f"Image outputted to \"{output_path}\"")
+    return output_path
 
 
 if __name__ == "__main__":

@@ -1,0 +1,40 @@
+[
+    {
+        "id": "papers7day",
+        "background": "media/papers.png",
+        "main-text": "Papers (7-day)",
+        "corner-text": "",
+        "acquired": "true",
+        "condition": "Read a paper every day for 7 days",
+        "rarity": "uncommon",
+        "description": "",
+        "tags": "research",
+        "text-fill-color": "green",
+        "text-border-color": "black",
+        "border-type": "rounded",
+        "border-color": "green",
+        "style": "bold",
+        "effect": "none",
+        "serifs": "false",
+        "stamp": "stamps/papers7day.png"
+    },
+    {
+        "id": "papers7day",
+        "background": "media/papers.png",
+        "main-text": "Papers (7-day)",
+        "corner-text": "",
+        "acquired": "true",
+        "condition": "Read a paper every day for 7 days",
+        "rarity": "uncommon",
+        "description": "",
+        "tags": "research",
+        "text-fill-color": "lime",
+        "text-border-color": "black",
+        "border-type": "rounded",
+        "border-color": "lime",
+        "style": "bold",
+        "effect": "none",
+        "serifs": "false",
+        "stamp": "stamps/papers7day.png"
+    }
+]
