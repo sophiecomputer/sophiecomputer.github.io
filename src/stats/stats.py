@@ -549,6 +549,68 @@ def read_stat_file(path: str) -> StatCalendar:
     return cal
 
 
+class StatDatabase:
+    """
+    An optional interface for accessing the stats.
+    """
+    
+    def __init__(self: "StatDatabase", env: Dict[str, str]) -> None:
+        """
+        Creates a database from a collection of (keyword, path) pairs.
+        """
+
+        self.stats = {
+            key : read_stat_file(path)
+            for key, path in env.items()
+        }
+
+
+    def sum(self: "StatDatabase", key: str, days: int) -> Union[float, int]:
+        """
+        Sums the count of values in the last (days) days for the calendar 
+        identified by (key). 
+        """
+
+        assert key in self.stats.keys(), f"{key} not in {self.stats.keys()}"
+        assert days > 0
+
+        stat = self.stats[key] 
+
+        # Get the last (days) days and sum their values.
+        total = 0
+        today = datetime.date.today() 
+        for i in range(days):
+            delta = datetime.timedelta(days=i)
+            date = today - delta 
+            cell = stat.get(date)
+            total += cell.cal_count()
+        
+        return total 
+    
+
+    def count(self: "StatDatabase", key: str, days: int) -> Union[float, int]:
+        """
+        Counts how many of the last (days) days in the calendar identified by 
+        (key) have a True value. 
+        """
+
+        assert key in self.stats.keys(), f"{key} not in {self.stats.keys()}"
+        assert days > 0
+
+        stat = self.stats[key] 
+
+        # Get the last (days) days and count True values.
+        total = 0
+        today = datetime.date.today() 
+        for i in range(days):
+            delta = datetime.timedelta(days=i)
+            date = today - delta 
+            cell = stat.get(date)
+            total += 1 if cell.cal_bool() else 0
+        
+        return total 
+
+
 def get_stat(keyword: str) -> StatCalendar: 
     """
     Returns the stat file corresponding to the given keyword.
@@ -559,10 +621,10 @@ def get_stat(keyword: str) -> StatCalendar:
     assert keyword in env.keys(), f"{keyword} not in {env.keys()}"
     
     # Create a singular calendar from the path. 
-    return read_stat_file(env[keyword])
+    return read_stat_file(env[keyword]) 
 
 
-def get_stats() -> Dict[str, StatCalendar]:
+def get_stats() -> StatDatabase:
     """
     Reads all stat files and obtains their data.
     """
@@ -570,8 +632,6 @@ def get_stats() -> Dict[str, StatCalendar]:
     # Read the .env file.
     env = read_env()
 
-    # Create a mapping of stat-file keyword identifiers and their calendars.
-    return {
-        key : read_stat_file(path) 
-        for key, path in env.items()
-    }
+    # Create a database out of the stats. We serialize automated hooks in JSON
+    # format, so this interface simplifies things.
+    return StatDatabase(env)

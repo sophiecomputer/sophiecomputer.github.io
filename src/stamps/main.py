@@ -9,6 +9,7 @@ dname = os.path.dirname(__file__)
 sys.path.append(dname)
 parent = os.path.dirname(dname)
 sys.path.append(parent)
+sys.path.append(f"{parent}/stats")
 
 # Import everything. 
 import json 
@@ -18,6 +19,7 @@ import subprocess
 from create import create_stamp
 from datetime import datetime, UTC 
 from PIL import Image
+from stats import get_stats 
 from typing import Dict
 from util import get_git_root
 
@@ -162,7 +164,10 @@ def add_interactive():
         "condition": "Plaintext, the condition for acquiring it", 
         "rarity": "(common, uncommon, rare, super, ultra)", 
         "description": "(If acquired, add description)", 
-        "eval": "Python expression, returns True if we can acquire it", 
+        "eval": (
+            "Python expression, returns True if we can acquire it (stats "
+            "object is named \"stats\")"
+        ), 
         "progress": "Python expression, returns a string like 3/7 or 45%", 
         "freq": "Integer, inclusive, number of days pass after acquire again",
         "tags": "(research, work, fun, food, travel, experience)"
@@ -171,6 +176,10 @@ def add_interactive():
     
     # Read all existing stamps. 
     all_json = get_stamps()
+    
+    # Get the stat files. Some stamps involve automated acquisition conditions,
+    # so we'll need to ensure those acquisition conditions are correct.
+    stats = get_stats()
 
     # Create a temp file with each field.
     basedir = f"{get_git_root()}/stamps"
@@ -247,11 +256,57 @@ def add_interactive():
                             "experience"]
                     ) and all_correct
     
+                    try:
+                        eval(data["eval"])
+                    except Exception as ex:
+                        print((
+                            "Error: evaluating the following code in the "
+                            "\"eval\" key raised the following error:"
+                        ))
+                        print(data["eval"])
+                        print(ex) 
+                        all_correct = False 
+
+                    try:
+                        eval(data["progress"])
+                    except Exception as ex:
+                        print((
+                            "Error: evaluating the following code in the "
+                            "\"progress\" key raised the following error:"
+                        ))
+                        print(data["progress"])
+                        print(ex) 
+                        all_correct = False 
+                        
+                    if not (
+                        data["freq"].isnumeric() and 
+                        int(data["freq"]) > 0
+                    ):
+                        print((
+                            f"Error: freq \"{data['freq']}\" must be a "
+                            "positive integer greater than zero"
+                        ))
+                        all_correct = False 
+
                     # If all_correct is True, exit. Otherwise, re-try. 
                     if not all_correct: 
                         input("Press enter to continue.")
                     else:
-                        break
+                        # Before continuing, show what the two eval parts 
+                        # actually look like to give the user another chance to
+                        # re-try.
+                        print(
+                            "Result of evaluating eval:", 
+                            eval(data["eval"])
+                        )
+                        print(
+                            "Result of evaluating progress:", 
+                            eval(data["progress"])
+                        )
+                        if input(
+                            "Does this look correct (y/n): "
+                        ).strip().lower() == "y":
+                            break 
     finally:
         if os.path.exists(temp_fname):
             os.remove(temp_fname)
