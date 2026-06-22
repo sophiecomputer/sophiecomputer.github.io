@@ -2,14 +2,21 @@
 Script for creating stamps.
 """
 
+# Import script from local directory. 
+import os 
+import sys 
+dname = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(dname)
+
+# Import everything.
 import argparse
 import math 
-import os
 import textwrap 
 
 from pathlib import Path
 from PIL import Image, ImageDraw, ImageEnhance, ImageFont
 from typing import Tuple
+from util import get_git_root
 
 
 def get_args():
@@ -301,7 +308,7 @@ def create_stamp(
     corner_font = f"/usr/share/fonts/TTF/OpenSans-Regular.ttf"
     assert os.path.exists(corner_font), corner_font
 
-    basedir = os.path.dirname(__file__)
+    basedir = f"{get_git_root()}/stamps"
     text = text.replace("\\n", "\n")
 
     # Load border.

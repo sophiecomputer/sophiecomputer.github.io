@@ -5,9 +5,10 @@ Interactively create and acquire stamps.
 # Import script from local directory. 
 import os 
 import sys 
-
 dname = os.path.dirname(__file__)
 sys.path.append(dname)
+parent = os.path.dirname(dname)
+sys.path.append(parent)
 
 # Import everything. 
 import json 
@@ -18,6 +19,7 @@ from create import create_stamp
 from datetime import datetime, UTC 
 from PIL import Image
 from typing import Dict
+from util import get_git_root
 
 
 def get_date_time() -> str:
@@ -32,9 +34,10 @@ def get_stamps() -> Dict:
     """
     Returns all stamp JSON objects.
     """
-
-    if os.path.exists("stamps.json"):
-        with open("stamps.json", "r") as f:
+    
+    fname = f"{get_git_root()}/stamps/stamps.json"
+    if os.path.exists(fname):
+        with open(fname, "r") as f:
             all_json = json.load(f) 
     else:
         all_json = []
@@ -50,7 +53,8 @@ def add(data: Dict[str, str]):
         "id", "background", "main-text", "corner-text", "acquired", "condition",
         "rarity", "description", "tags", "date"
     }
-    basedir = os.path.dirname(__file__)
+    basedir = f"{get_git_root()}/stamps"
+    assert os.path.exists(basedir), basedir
     
     # "data" contains a valid JSON in the correct format. First, add the rarity 
     # visual modifiers. 
@@ -158,95 +162,99 @@ def add_interactive():
         "condition": "Plaintext, the condition for acquiring it", 
         "rarity": "(common, uncommon, rare, super, ultra)", 
         "description": "(If acquired, add description)", 
+        "eval": "Python expression, returns True if we can acquire it", 
+        "progress": "Python expression, returns a string like 3/7 or 45%", 
+        "freq": "Integer, inclusive, number of days pass after acquire again",
         "tags": "(research, work, fun, food, travel, experience)"
     }
     keys = set(data.keys())
     
     # Read all existing stamps. 
-    if os.path.exists("stamps.json"):
-        with open("stamps.json", "r") as f:
-            all_json = json.load(f) 
-    else:
-        all_json = []
+    all_json = get_stamps()
 
     # Create a temp file with each field.
-    basedir = os.path.dirname(__file__)
+    basedir = f"{get_git_root()}/stamps"
     temp_fname = f"{basedir}/temp.txt"
-    with open(temp_fname, "w") as f: 
-        json.dump(data, f, indent=4)
-
-    while True:
-        # Allow the user to input things via vim.
-        subprocess.run(["vim", temp_fname])
-
-        # Check the fields to see if they're correct.
-        with open(temp_fname, "r") as f:
-            try:
-                data = json.load(f)
-                loaded_correctly = True
-            except: 
-                loaded_correctly = False
-        
-        if not loaded_correctly: 
-            input("Could not load file as JSON. Press enter to continue.")
-        else:
-            current_keys = set(data.keys())
-            if current_keys != keys:
-                # Flag extra/missing keys.
-                for extra_key in current_keys - keys:
-                    print(f"Error: extra key: \"{extra_key}\"")
-                for missing_key in keys - current_keys:
-                    print(f"Error: missing key: \"{missing_key}\"")
-                input("Press enter to continue.")
+    try: 
+        with open(temp_fname, "w") as f: 
+            json.dump(data, f, indent=4)
+    
+        while True:
+            # Allow the user to input things via vim.
+            subprocess.run(["vim", temp_fname])
+    
+            # Check the fields to see if they're correct.
+            with open(temp_fname, "r") as f:
+                try:
+                    data = json.load(f)
+                    loaded_correctly = True
+                except: 
+                    loaded_correctly = False
+            
+            if not loaded_correctly: 
+                input("Could not load file as JSON. Press enter to continue.")
             else:
-                # Try to parse everything. Ensure each data type is correct.
-                all_correct = True
-                if not os.path.exists(data["background"]):
-                    print(f"Error: path \"{data['background']}\" missing.")
-                    all_correct = False 
-
-                if not all(
-                    ch in "abcdefghijklmnopqrstuvwxyz0123456789-_"
-                    for ch in data["id"]
-                ):
-                    print((
-                        f"Error: id can only contain lowercase, numbers, or "
-                        f"dash/underscore, received \"{data['id']}\"."
-                    ))
-                    all_correct = False 
-                elif any(stamp["id"] == data["id"] for stamp in all_json):
-                    print(
-                        f"Error: id \"{data['id']}\" has been used before."
-                    )
-                    all_correct = False
-
-                def check(key, options):
-                    if data[key] not in options:
-                        print((
-                            f"Error: {key} must be in {options}, received "
-                            f"\"{data[key]}\"."
-                        ))
-                        return False
-                    return True 
-                
-                all_correct = check(
-                    "acquired", 
-                    ["true", "false"]
-                ) and all_correct
-                all_correct = check(
-                    "rarity", 
-                    ["common", "uncommon", "rare", "super", "ultra"]
-                ) and all_correct
-                all_correct = check(
-                    "tags", 
-                    ["research", "work", "fun", "food", "travel", "experience"]
-                ) and all_correct
-
-                # If all_correct is True, exit. Otherwise, re-try. 
-                if not all_correct: 
+                current_keys = set(data.keys())
+                if current_keys != keys:
+                    # Flag extra/missing keys.
+                    for extra_key in current_keys - keys:
+                        print(f"Error: extra key: \"{extra_key}\"")
+                    for missing_key in keys - current_keys:
+                        print(f"Error: missing key: \"{missing_key}\"")
                     input("Press enter to continue.")
                 else:
-                    break
+                    # Try to parse everything. Ensure each data type is correct.
+                    all_correct = True
+                    if not os.path.exists(data["background"]):
+                        print(f"Error: path \"{data['background']}\" missing.")
+                        all_correct = False 
+    
+                    if not all(
+                        ch in "abcdefghijklmnopqrstuvwxyz0123456789-_"
+                        for ch in data["id"]
+                    ):
+                        print((
+                            f"Error: id can only contain lowercase, numbers, "
+                            f"or dash/underscore, received \"{data['id']}\"."
+                        ))
+                        all_correct = False 
+                    elif any(stamp["id"] == data["id"] for stamp in all_json):
+                        print(
+                            f"Error: id \"{data['id']}\" has been used before."
+                        )
+                        all_correct = False
+    
+                    def check(key, options):
+                        if data[key] not in options:
+                            print((
+                                f"Error: {key} must be in {options}, received "
+                                f"\"{data[key]}\"."
+                            ))
+                            return False
+                        return True 
+                    
+                    all_correct = check(
+                        "acquired", 
+                        ["true", "false"]
+                    ) and all_correct
+                    all_correct = check(
+                        "rarity", 
+                        ["common", "uncommon", "rare", "super", "ultra"]
+                    ) and all_correct
+                    all_correct = check(
+                        "tags", 
+                        ["research", "work", "fun", "food", "travel", 
+                            "experience"]
+                    ) and all_correct
+    
+                    # If all_correct is True, exit. Otherwise, re-try. 
+                    if not all_correct: 
+                        input("Press enter to continue.")
+                    else:
+                        break
+    finally:
+        if os.path.exists(temp_fname):
+            os.remove(temp_fname)
 
     # We've obtained the JSON from the interactive routine, pass it to 
     # non-interactive handler. 
@@ -394,7 +402,7 @@ def update_interactive():
     """
 
     # Write updated index to file.
-    basedir = os.path.dirname(__file__)
+    basedir = f"{get_git_root()}/stamps"
     with open(f"{basedir}/index.html", "w") as f:
         f.write(html)
     print(f"Outputted to \"{basedir}/index.html\"")
