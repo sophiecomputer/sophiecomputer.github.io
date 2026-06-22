@@ -7,13 +7,13 @@ import os
 from pathlib import Path 
 
 
-def get_git_root() -> str:
+def get_git_root(cwd=__file__) -> str:
     """
     Walk upwards from the current path until we find a path with ".git" in it.
     Raises an exception if ".git" cannot be found.
     """
     
-    start = os.path.abspath(".")
+    start = os.path.abspath(cwd)
     cwd = start
     while True:
         if os.path.exists(f"{cwd}/.git"):

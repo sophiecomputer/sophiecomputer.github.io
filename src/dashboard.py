@@ -8,6 +8,8 @@ import os
 import sys 
 dname = os.path.dirname(__file__)
 sys.path.append(dname)
+assert os.path.exists(f"{dname}/stats"), f"{dname}/stats" 
+sys.path.append(f"{dname}/stats")
 
 # Import required scripts. 
 from stats import get_stats

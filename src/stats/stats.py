@@ -24,13 +24,13 @@ format.
 # Add local directory to path. 
 import os 
 import sys 
-dname = os.path.dirname(__file__)
+dname = os.path.dirname(os.path.dirname(__file__))
 sys.path.append(dname)
 
 import datetime 
 import re 
 
-from typing import Any, Dict, IO, List, Optional, Tuple, Type, Union
+from typing import Any, Dict, IO, Iterator, List, Optional, Tuple, Type, Union
 from util import get_git_root
 
 
@@ -103,7 +103,7 @@ class BoolStat(CellStat):
 
 
     def cal_text(self: "BoolStat") -> str:
-        return str(self.data)
+        return ""  # Don't show True or False in a calendar cell.
 
     
     def cal_count(self: "BoolStat") -> Union[int, float]:
@@ -230,6 +230,7 @@ class StatCalendar:
     ) -> None:
         self.cells = {}  # Maps datetime.date to a CellStat object.
         self.cell_type = cell_type
+        self.iterator = None
 
 
     def add(self: "StatCalendar", cell: CellStat) -> None:
@@ -272,6 +273,12 @@ class StatCalendar:
 
     def __repr__(self: "StatCalendar") -> str:
         return str(self) 
+
+
+    def __iter__(
+        self: "StatCalendar"
+    ) -> Iterator[Tuple[datetime.date, CellStat]]:
+        return iter(self.cells.items())
 
 
 class BoolCalendar(StatCalendar):
@@ -540,6 +547,19 @@ def read_stat_file(path: str) -> StatCalendar:
 
     # Return the final object.
     return cal
+
+
+def get_stat(keyword: str) -> StatCalendar: 
+    """
+    Returns the stat file corresponding to the given keyword.
+    """
+
+    # Read the (entire) .env file for the path.
+    env = read_env() 
+    assert keyword in env.keys(), f"{keyword} not in {env.keys()}"
+    
+    # Create a singular calendar from the path. 
+    return read_stat_file(env[keyword])
 
 
 def get_stats() -> Dict[str, StatCalendar]:
