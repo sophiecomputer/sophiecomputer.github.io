@@ -12,15 +12,15 @@ sys.path.append(parent)
 sys.path.append(f"{parent}/stats")
 
 # Import everything. 
+import datetime 
 import json 
 import readline
 import subprocess
 
 from create import create_stamp
-from datetime import datetime, UTC 
 from PIL import Image
-from stats import get_stats 
-from typing import Dict
+from stats import get_stats, StatDatabase 
+from typing import Dict, List
 from util import get_git_root
 
 
@@ -29,10 +29,22 @@ def get_date_time() -> str:
     Date and time as a string formatted like YYYY-MM-DD@HH-MM. 
     """
 
-    return datetime.now().astimezone().strftime("%Y-%m-%d@%H-%M")
+    return datetime.datetime.now().astimezone().strftime("%Y-%m-%d@%H-%M")
 
 
-def get_stamps() -> Dict: 
+def parse_date_time(datetime_str: str) -> datetime.datetime:
+    """
+    Parses the datetime in the format from the other function. 
+    """
+    
+    local_tz = datetime.datetime.now().astimezone().tzinfo
+    return (
+        datetime.datetime.strptime(datetime_str, "%Y-%m-%d@%H-%M")
+        .replace(tzinfo=local_tz)
+    ) 
+
+
+def get_stamps() -> List[Dict]: 
     """
     Returns all stamp JSON objects.
     """
@@ -46,15 +58,76 @@ def get_stamps() -> Dict:
     return all_json
 
 
+def can_acquire(
+    stats: StatDatabase, 
+    stamp: Dict, 
+    all_stamps: List[Dict]
+) -> bool:
+    """
+    Returns True if we can acquire this stamp.
+    """
+
+    if "eval" in stamp and stamp["eval"] is not None:
+        assert "progress" in stamp, stamp.keys() 
+        assert "freq" in stamp, stamp.keys()
+        
+        # Two conditions must be true. (1) The stamp must have its "eval" 
+        # condition return true. 
+        try:
+            eval_result = eval(stamp["eval"])
+        except:
+            print("Error: we failed to evaluate the following stamp:", stamp) 
+            raise 
+
+        if not eval_result:
+            return False 
+
+        # And (2), the time since the last acquisition of this stamp must be 
+        # greater or equal to "freq". We can find this by searching for all 
+        # stamps which have the same parent ID as this, and getting the closest
+        # distance in days.
+        freq = int(stamp["freq"])
+        today = datetime.date.today() 
+        for st in all_stamps:
+            if (
+                "parent" in st and 
+                st["parent"] is not None and
+                stamp["parent"] == st["parent"]
+            ):
+                # We share the same parent.
+                assert "date" in stamp["date"], stamp.keys()
+                try: datetime_obj = parse_date_time(stamp["date"])
+                except: raise ValueError(repr(stamp)) 
+                
+                # How much time passed since then? 
+                days_since = (today - datetime_obj).days
+                if days_since < freq:
+                    return False 
+        
+        # If we made it here, there were no conflicts and the stamp is able
+        # to be acquired. 
+        return True 
+
+    else:
+        return False
+
+
 def add(data: Dict[str, str]): 
     """
     Adds a new stamp to the collection, given the JSON required.
     """
+    
+    # Confirm the keys look correct. 
+    assert {
+        "id", "parent-id", "background", "main-text", "corner-text", "acquired", 
+        "condition", "rarity", "description", "tags", "date"
+    } - set(data.keys()) == set(), f"Input missing keys: {data.keys()}"
+    if any(k in data.keys() for k in ("eval", "progress", "freq")):
+        assert {"eval" ,"progress", "freq"} - set(data.keys()) == set(), (
+            f"If any of (eval, progress, freq) are in input, then all must be, "
+            f"input = {data.keys()}"
+        )
 
-    assert set(data.keys()) == {
-        "id", "background", "main-text", "corner-text", "acquired", "condition",
-        "rarity", "description", "tags", "date"
-    }
     basedir = f"{get_git_root()}/stamps"
     assert os.path.exists(basedir), basedir
     
@@ -108,7 +181,7 @@ def add(data: Dict[str, str]):
     # we could make more badges of it in the future. 
     if not os.path.exists(f"{basedir}/media"):
         os.mkdir(f"{basedir}/media")
-    with Image.open(data["background"]) as img:
+    with Image.open(f"{basedir}/{data['background']}") as img:
         resized = img.resize((100, 65), resample=Image.Resampling.NEAREST)
         new_path = f"media/{os.path.basename(data['background'])}"
         resized.save(f"{basedir}/{new_path}")
@@ -120,7 +193,7 @@ def add(data: Dict[str, str]):
     if not os.path.exists(f"{basedir}/stamps"):
         os.mkdir(f"{basedir}/stamps")
     stamp_fname = create_stamp(
-        background_path=data["background"], 
+        background_path=f"{basedir}/{data['background']}", 
         text=data["main-text"], 
         border_type=data["border-type"], 
         corner_text=data["corner-text"], 
@@ -129,7 +202,7 @@ def add(data: Dict[str, str]):
         text_border_color=data["text-border-color"], 
         style=data["style"], 
         serifs=(data["serifs"] == "true"), 
-        gray=(data["acquired"] == "false"), 
+        gray=(not data["acquired"]), 
         effect=data["effect"]
     )
     ext = stamp_fname[stamp_fname.rindex(".")+1:]
@@ -144,9 +217,10 @@ def add(data: Dict[str, str]):
     all_json = get_stamps()
     all_json = [j for j in all_json if j["id"] != data["id"]]   
     all_json.append(data)
-    with open("stamps.json", "w") as f:
+    fname = f"{basedir}/stamps.json"
+    with open(fname, "w") as f:
         json.dump(all_json, f, indent=4)
-    print(f"Stamp index updated at \"stamps.json\"")
+    print(f"Stamp index updated at \"{fname}\"")
 
 
 def add_interactive():
@@ -157,16 +231,17 @@ def add_interactive():
     # Define the default data that appears in the user-visible file. 
     data = {
         "id": "temp (becomes the file name, no extension)", 
+        "parent-id": "ID of parent (for automation, can be null)", 
         "background": "/path/to/background.png", 
         "main-text": "Text to\\ndisplay", 
         "corner-text": "Optional text to put in corner", 
-        "acquired": "(true, false)", 
+        "acquired": True, 
         "condition": "Plaintext, the condition for acquiring it", 
         "rarity": "(common, uncommon, rare, super, ultra)", 
         "description": "(If acquired, add description)", 
         "eval": (
             "Python expression, returns True if we can acquire it (stats "
-            "object is named \"stats\")"
+            "object is named 'stats')"
         ), 
         "progress": "Python expression, returns a string like 3/7 or 45%", 
         "freq": "Integer, inclusive, number of days pass after acquire again",
@@ -244,7 +319,7 @@ def add_interactive():
                     
                     all_correct = check(
                         "acquired", 
-                        ["true", "false"]
+                        [True, False]
                     ) and all_correct
                     all_correct = check(
                         "rarity", 
@@ -317,8 +392,91 @@ def add_interactive():
     add(data)
 
 
+def acquire(stamp: Dict, new: bool) -> None:
+    """
+    Acquires the given stamp. If "new" is True, we acquire a *new stamp* while
+    keeping the parameter the same. Otherwise, we turn this original into 
+    acquired. 
+    """
+    
+    if new: 
+        # Create a brand new stamp with this as the parent.
+        stamp_copy = { key : value for key, value in stamp.items() }
+        
+        today = datetime.date.today() 
+        s = f"{today.year}{today.month:02}{today.day:02}"
+
+        stamp_copy["parent-id"] = stamp["id"]
+        stamp_copy["id"] = f"{stamp['id']}-{s}"
+        stamp_copy["acquired"] = True
+        add(stamp_copy) 
+    else:
+        # Adjust the original stamp which we have a reference to. 
+        stamp["acquired"] = True
+        add(stamp)
+
+
 def acquire_interactive():
-    pass
+    """
+    Attempts to acquire existing stamps, and gives the user a chance to manually
+    acquire any.
+    """
+
+    # First, check if any can be automatically acquired.
+    stamps = get_stamps()
+    stats = get_stats()
+    acquirable = [] 
+    for stamp in stamps:
+        if can_acquire(stats, stamp, stamps): 
+            print(f"We can acquire {stamp['id']}!") 
+            acquirable.append(stamp)
+
+    if len(acquirable) > 0:
+        choice = input("Acquire all acquirable stamps (y/n): ").strip().lower()
+        while choice not in ["y", "n"]: 
+            choice = input("Invalid input, try again: ").strip().lower() 
+
+        if choice == "y":
+            for stamp in acquirable:
+                # Automatically acquirable stamps likely are templates we can
+                # do again in the future. 
+                acquire(stamp, new=True)
+            stamps = get_stamps()
+    else:
+        print("No stamps may be automatically acquired")
+
+    choice = input("Acquire any stamps manually (y/n): ").strip().lower()
+    while choice not in ["y", "n"]: 
+        choice = input("Invalid input, try again: ").strip().lower()
+
+    if choice == "n":
+        return 
+
+    print("Stamp IDs:")
+    print("- " + "\n- ".join(str(stamp["id"]) for stamp in stamps))
+    print()
+
+    while True:
+        choice = input("Name of stamp (press enter to leave): ").strip()
+        if len(choice) == 0:
+            break
+        else:
+            stamp = next(
+                (stamp for stamp in stamps if stamp["id"] == choice), 
+                None
+            )
+            if stamp is None:
+                print("No stamp has the name \"{choice}\"")
+            else:
+                choice = input((
+                    "Create a new stamp from this (1), or acquire the existing "
+                    "stamp (2)? "
+                )).strip()
+                while choice not in ["1", "2"]: 
+                    choice = input("Invalid input, try again: ").strip()
+
+                new = (choice == "1")  
+                acquire(stamp, new) 
 
 
 def update_interactive():
@@ -432,7 +590,7 @@ def update_interactive():
       <hr class="divider">
     """
 
-    # Add all other stamps in order. 
+    # Add all other stamps in order.
     html += "<p>"
     for stamp in [s for s in stamps if not s["id"].startswith("example-")]:
         html += (
@@ -443,7 +601,7 @@ def update_interactive():
     html += "</p>"
     
     # Add HTML footer. 
-    timestamp = datetime.now(UTC).strftime(
+    timestamp = datetime.datetime.now(datetime.UTC).strftime(
         "Last updated: %B %-d, %Y at %H:%M UTC"
     )
     html += f"""
@@ -473,12 +631,12 @@ def demo():
         background_path = input("Does not exist, try again: ").strip()
 
     # Create each stamp. 
-    for acquired in ("true", "false"):
+    for acquired in (True, False):
         for rarity in ("common", "uncommon", "rare", "super", "ultra"):
             data = {
                 "id": (
                     "example-"
-                    f"{'' if acquired == 'true' else 'un'}acquired-"
+                    f"{'' if acquired else 'un'}acquired-"
                     f"{rarity}" 
                 ), 
                 "background": background_path,
