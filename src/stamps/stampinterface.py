@@ -181,7 +181,14 @@ def add(data: Dict[str, str]):
     # we could make more badges of it in the future. 
     if not os.path.exists(f"{basedir}/media"):
         os.mkdir(f"{basedir}/media")
-    with Image.open(f"{basedir}/{data['background']}") as img:
+        
+    img_path = data["background"] 
+    if not os.path.exists(img_path):
+        img_path = f"{basedir}/{data['background']}"
+        if not os.path.exists(img_path):
+            raise FileNotFoundError(data['background'])
+
+    with Image.open(img_path) as img:
         resized = img.resize((100, 65), resample=Image.Resampling.NEAREST)
         new_path = f"media/{os.path.basename(data['background'])}"
         resized.save(f"{basedir}/{new_path}")
@@ -239,13 +246,10 @@ def add_interactive():
         "condition": "Plaintext, the condition for acquiring it", 
         "rarity": "(common, uncommon, rare, super, ultra)", 
         "description": "(If acquired, add description)", 
-        "eval": (
-            "Python expression, returns True if we can acquire it (stats "
-            "object is named 'stats')"
-        ), 
-        "progress": "Python expression, returns a string like 3/7 or 45%", 
+        "eval": "E.g., stats.count('workout', 7) >= 3", 
+        "progress": "E.g., str(stats.count('workout', 7)) + '/3'", 
         "freq": "Integer, inclusive, number of days pass after acquire again",
-        "tags": "(research, work, fun, food, travel, experience)"
+        "tags": "(research, work, fun, food, travel, health, experience)"
     }
     keys = set(data.keys())
     
@@ -259,132 +263,139 @@ def add_interactive():
     # Create a temp file with each field.
     basedir = f"{get_git_root()}/stamps"
     temp_fname = f"{basedir}/temp.txt"
-    try: 
-        with open(temp_fname, "w") as f: 
-            json.dump(data, f, indent=4)
-    
-        while True:
-            # Allow the user to input things via vim.
-            subprocess.run(["vim", temp_fname])
-    
-            # Check the fields to see if they're correct.
-            with open(temp_fname, "r") as f:
-                try:
-                    data = json.load(f)
-                    loaded_correctly = True
-                except: 
-                    loaded_correctly = False
-            
-            if not loaded_correctly: 
-                input("Could not load file as JSON. Press enter to continue.")
+    with open(temp_fname, "w") as f: 
+        json.dump(data, f, indent=4)
+
+    while True:
+        # Allow the user to input things via vim.
+        subprocess.run(["vim", temp_fname])
+
+        # Check the fields to see if they're correct.
+        with open(temp_fname, "r") as f:
+            try:
+                data = json.load(f)
+                loaded_correctly = True
+            except: 
+                loaded_correctly = False
+        
+        if not loaded_correctly: 
+            input("Could not load file as JSON. Press enter to continue.")
+        else:
+            current_keys = set(data.keys())
+            if current_keys != keys:
+                # Flag extra/missing keys.
+                for extra_key in current_keys - keys:
+                    print(f"Error: extra key: \"{extra_key}\"")
+                for missing_key in keys - current_keys:
+                    print(f"Error: missing key: \"{missing_key}\"")
+                input("Press enter to continue.")
             else:
-                current_keys = set(data.keys())
-                if current_keys != keys:
-                    # Flag extra/missing keys.
-                    for extra_key in current_keys - keys:
-                        print(f"Error: extra key: \"{extra_key}\"")
-                    for missing_key in keys - current_keys:
-                        print(f"Error: missing key: \"{missing_key}\"")
+                # Try to parse everything. Ensure each data type is correct.
+                all_correct = True
+                if not os.path.exists(data["background"]):
+                    print(f"Error: path \"{data['background']}\" missing.")
+                    all_correct = False 
+
+                if not all(
+                    ch in "abcdefghijklmnopqrstuvwxyz0123456789-_"
+                    for ch in data["id"]
+                ):
+                    print((
+                        f"Error: id can only contain lowercase, numbers, "
+                        f"or dash/underscore, received \"{data['id']}\"."
+                    ))
+                    all_correct = False 
+                elif any(stamp["id"] == data["id"] for stamp in all_json):
+                    print(
+                        f"Error: id \"{data['id']}\" has been used before."
+                    )
+                    all_correct = False
+
+                def check(key, options):
+                    if data[key] not in options:
+                        print((
+                            f"Error: {key} must be in {options}, received "
+                            f"\"{data[key]}\"."
+                        ))
+                        return False
+                    return True 
+                
+                all_correct = check(
+                    "acquired", 
+                    [True, False]
+                ) and all_correct
+                all_correct = check(
+                    "rarity", 
+                    ["common", "uncommon", "rare", "super", "ultra"]
+                ) and all_correct
+                all_correct = check(
+                    "tags", 
+                    ["research", "work", "fun", "food", "travel", 
+                        "health", "experience"]
+                ) and all_correct
+
+                try:
+                    eval(data["eval"])
+                except Exception as ex:
+                    print((
+                        "Error: evaluating the following code in the "
+                        "\"eval\" key raised the following error:"
+                    ))
+                    print(data["eval"])
+                    print(ex) 
+                    all_correct = False 
+
+                try:
+                    eval(data["progress"])
+                except Exception as ex:
+                    print((
+                        "Error: evaluating the following code in the "
+                        "\"progress\" key raised the following error:"
+                    ))
+                    print(data["progress"])
+                    print(ex) 
+                    all_correct = False 
+                
+                if not (
+                    (
+                        isinstance(data["freq"], str) and
+                        data["freq"].isnumeric() and
+                        int(data["freq"]) > 0
+                    )
+                    or 
+                    (
+                        isinstance(data["freq"], int) and 
+                        data["freq"] > 0
+                    )
+                ):
+                    print((
+                        f"Error: freq \"{data['freq']}\" must be a "
+                        "positive integer greater than zero"
+                    ))
+                    all_correct = False
+                else:
+                    if isinstance(data["freq"], str):
+                        data["freq"] = int(data["freq"])
+
+                # If all_correct is True, exit. Otherwise, re-try. 
+                if not all_correct: 
                     input("Press enter to continue.")
                 else:
-                    # Try to parse everything. Ensure each data type is correct.
-                    all_correct = True
-                    if not os.path.exists(data["background"]):
-                        print(f"Error: path \"{data['background']}\" missing.")
-                        all_correct = False 
-    
-                    if not all(
-                        ch in "abcdefghijklmnopqrstuvwxyz0123456789-_"
-                        for ch in data["id"]
-                    ):
-                        print((
-                            f"Error: id can only contain lowercase, numbers, "
-                            f"or dash/underscore, received \"{data['id']}\"."
-                        ))
-                        all_correct = False 
-                    elif any(stamp["id"] == data["id"] for stamp in all_json):
-                        print(
-                            f"Error: id \"{data['id']}\" has been used before."
-                        )
-                        all_correct = False
-    
-                    def check(key, options):
-                        if data[key] not in options:
-                            print((
-                                f"Error: {key} must be in {options}, received "
-                                f"\"{data[key]}\"."
-                            ))
-                            return False
-                        return True 
-                    
-                    all_correct = check(
-                        "acquired", 
-                        [True, False]
-                    ) and all_correct
-                    all_correct = check(
-                        "rarity", 
-                        ["common", "uncommon", "rare", "super", "ultra"]
-                    ) and all_correct
-                    all_correct = check(
-                        "tags", 
-                        ["research", "work", "fun", "food", "travel", 
-                            "experience"]
-                    ) and all_correct
-    
-                    try:
+                    # Before continuing, show what the two eval parts 
+                    # actually look like to give the user another chance to
+                    # re-try.
+                    print(
+                        "Result of evaluating eval:", 
                         eval(data["eval"])
-                    except Exception as ex:
-                        print((
-                            "Error: evaluating the following code in the "
-                            "\"eval\" key raised the following error:"
-                        ))
-                        print(data["eval"])
-                        print(ex) 
-                        all_correct = False 
-
-                    try:
+                    )
+                    print(
+                        "Result of evaluating progress:", 
                         eval(data["progress"])
-                    except Exception as ex:
-                        print((
-                            "Error: evaluating the following code in the "
-                            "\"progress\" key raised the following error:"
-                        ))
-                        print(data["progress"])
-                        print(ex) 
-                        all_correct = False 
-                        
-                    if not (
-                        data["freq"].isnumeric() and 
-                        int(data["freq"]) > 0
-                    ):
-                        print((
-                            f"Error: freq \"{data['freq']}\" must be a "
-                            "positive integer greater than zero"
-                        ))
-                        all_correct = False 
-
-                    # If all_correct is True, exit. Otherwise, re-try. 
-                    if not all_correct: 
-                        input("Press enter to continue.")
-                    else:
-                        # Before continuing, show what the two eval parts 
-                        # actually look like to give the user another chance to
-                        # re-try.
-                        print(
-                            "Result of evaluating eval:", 
-                            eval(data["eval"])
-                        )
-                        print(
-                            "Result of evaluating progress:", 
-                            eval(data["progress"])
-                        )
-                        if input(
-                            "Does this look correct (y/n): "
-                        ).strip().lower() == "y":
-                            break 
-    finally:
-        if os.path.exists(temp_fname):
-            os.remove(temp_fname)
+                    )
+                    if input(
+                        "Does this look correct (y/n): "
+                    ).strip().lower() == "y":
+                        break 
 
     # We've obtained the JSON from the interactive routine, pass it to 
     # non-interactive handler. 
@@ -591,8 +602,27 @@ def update_interactive():
     """
 
     # Add all other stamps in order.
-    html += "<p>"
-    for stamp in [s for s in stamps if not s["id"].startswith("example-")]:
+    html += "<h3>Acquired</h3><p>"
+    for stamp in [
+        s for s in stamps 
+        if (
+            not s["id"].startswith("example-") and 
+            s["acquired"] in (True, "true")
+        )
+    ]:
+        html += (
+            "<img "
+            f"src=\"{stamp['stamp']}\" "
+            f"onclick=\"stamp_clicked('{stamp['id']}');\">"
+        )
+    html += "</p><h3>Unacquired</h3><p>"
+    for stamp in [
+        s for s in stamps 
+        if (
+            not s["id"].startswith("example-") and 
+            s["acquired"] in (False, "false")
+        )
+    ]:
         html += (
             "<img "
             f"src=\"{stamp['stamp']}\" "
