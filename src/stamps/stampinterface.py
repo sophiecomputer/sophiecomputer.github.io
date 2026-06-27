@@ -120,7 +120,7 @@ def add(data: Dict[str, str]):
     # Confirm the keys look correct. 
     assert {
         "id", "parent-id", "background", "main-text", "corner-text", "acquired", 
-        "condition", "rarity", "description", "tags", "date"
+        "condition", "rarity", "description", "tags", "date", "name"
     } - set(data.keys()) == set(), f"Input missing keys: {data.keys()}"
     if any(k in data.keys() for k in ("eval", "progress", "freq")):
         assert {"eval" ,"progress", "freq"} - set(data.keys()) == set(), (
@@ -182,8 +182,13 @@ def add(data: Dict[str, str]):
     if not os.path.exists(f"{basedir}/media"):
         os.mkdir(f"{basedir}/media")
         
-    img_path = data["background"] 
-    if not os.path.exists(img_path):
+    img_path = data["background"]
+    if img_path is None:
+        # Use default image.
+        default_img_path = f"{basedir}/media/default-background.png"
+        assert os.path.exists(default_img_path), default_img_path 
+        img_path = default_img_path 
+    elif not os.path.exists(img_path):
         img_path = f"{basedir}/{data['background']}"
         if not os.path.exists(img_path):
             raise FileNotFoundError(data['background'])
@@ -238,6 +243,7 @@ def add_interactive():
     # Define the default data that appears in the user-visible file. 
     data = {
         "id": "temp (becomes the file name, no extension)", 
+        "name": "Short name",
         "parent-id": "ID of parent (for automation, can be null)", 
         "background": "/path/to/background.png", 
         "main-text": "Text to\\ndisplay", 
@@ -575,6 +581,17 @@ def update_interactive():
         a new location, eating a new food, etc.).</p>
     """
 
+    def emit_stamp(stamp):
+        """
+        Emits the HTML for the given stamp. 
+        """
+
+        return (
+            "<img "
+            f"src=\"{stamp['stamp']}\" "
+            f"onclick=\"stamp_clicked('{example['id']}');\">"
+        )
+
     # Add demo of example stamps. The example stamps begin with "example-". 
     stamps = get_stamps() 
     html += (
@@ -584,11 +601,7 @@ def update_interactive():
         "</summary><p>"
     )
     for example in [s for s in stamps if s["id"].startswith("example-")]:
-        html += (
-            "<img "
-            f"src=\"{example['stamp']}\" "
-            f"onclick=\"stamp_clicked('{example['id']}');\">"
-        )
+        html += emit_stamp(example) 
     html += "</p></details></p>"
 
     # Add section for viewing stamp info. 
@@ -610,11 +623,7 @@ def update_interactive():
             s["acquired"] in (True, "true")
         )
     ]:
-        html += (
-            "<img "
-            f"src=\"{stamp['stamp']}\" "
-            f"onclick=\"stamp_clicked('{stamp['id']}');\">"
-        )
+        html += emit_stamp(stamp) 
     html += "</p><h3>Unacquired</h3><p>"
     for stamp in [
         s for s in stamps 

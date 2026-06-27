@@ -1,6 +1,7 @@
 [
     {
         "id": "example-acquired-common",
+        "name": "Example", 
         "background": "media/book.png",
         "main-text": "Common",
         "corner-text": "1/1/2026",
@@ -21,6 +22,7 @@
     },
     {
         "id": "example-acquired-uncommon",
+        "name": "Example", 
         "background": "media/book.png",
         "main-text": "Uncommon",
         "corner-text": "",
@@ -41,6 +43,7 @@
     },
     {
         "id": "example-acquired-rare",
+        "name": "Example", 
         "background": "media/book.png",
         "main-text": "Rare",
         "corner-text": "",
@@ -61,6 +64,7 @@
     },
     {
         "id": "example-acquired-super",
+        "name": "Example", 
         "background": "media/book.png",
         "main-text": "Super",
         "corner-text": "",
@@ -81,6 +85,7 @@
     },
     {
         "id": "example-acquired-ultra",
+        "name": "Example", 
         "background": "media/book.png",
         "main-text": "Ultra",
         "corner-text": "",
@@ -101,6 +106,7 @@
     },
     {
         "id": "example-unacquired-common",
+        "name": "Example", 
         "background": "media/book.png",
         "main-text": "Common",
         "corner-text": "1/1/2026",
@@ -121,6 +127,7 @@
     },
     {
         "id": "example-unacquired-uncommon",
+        "name": "Example", 
         "background": "media/book.png",
         "main-text": "Uncommon",
         "corner-text": "",
@@ -141,6 +148,7 @@
     },
     {
         "id": "example-unacquired-rare",
+        "name": "Example", 
         "background": "media/book.png",
         "main-text": "Rare",
         "corner-text": "",
@@ -161,6 +169,7 @@
     },
     {
         "id": "example-unacquired-super",
+        "name": "Example", 
         "background": "media/book.png",
         "main-text": "Super",
         "corner-text": "",
@@ -181,6 +190,7 @@
     },
     {
         "id": "example-unacquired-ultra",
+        "name": "Example", 
         "background": "media/book.png",
         "main-text": "Ultra",
         "corner-text": "",
@@ -201,6 +211,7 @@
     },
     {
         "id": "stampbook-created",
+        "name": "Example", 
         "background": "media/stamps.png",
         "main-text": "Stampbook\nCreated",
         "corner-text": "",
@@ -221,6 +232,7 @@
     },
     {
         "id": "read-paper-7day",
+        "name": "Paper Reader", 
         "parent-id": null,
         "background": "media/papers.png",
         "main-text": "",
@@ -245,6 +257,7 @@
     },
     {
         "id": "gym-7day-week",
+        "name": "Gym Rat", 
         "parent-id": null,
         "background": "media/weights.png",
         "main-text": "",
@@ -269,6 +282,7 @@
     },
     {
         "id": "gym-3day-week",
+        "name": "Gym Mouse", 
         "parent-id": null,
         "background": "media/tamamo.png",
         "main-text": "",
@@ -293,6 +307,7 @@
     },
     {
         "id": "work-40hours",
+        "name": "Coworkerverse", 
         "parent-id": null,
         "background": "media/work.png",
         "main-text": "",
@@ -317,6 +332,7 @@
     },
     {
         "id": "fruit-7day",
+        "name": "Gay Fruit", 
         "parent-id": null,
         "background": "media/fruit.png",
         "main-text": "",
@@ -341,6 +357,7 @@
     },
     {
         "id": "vegetable-7day",
+        "name": "Doctor Impressor", 
         "parent-id": null,
         "background": "media/vegetable.png",
         "main-text": "",
